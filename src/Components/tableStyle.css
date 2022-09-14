@@ -1,0 +1,69 @@
+.card_style{
+    /* display:flex; */
+    padding:10px;
+    background-color:white;
+    border-radius:20px;
+    border:1px solid #ede8e8;
+    cursor:pointer
+}.card_style:hover{
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+}
+.tableResponsive{
+    width:'100%';
+    border:1px solid #d6d3d3;
+    background-color: white;
+    border-radius: 10px;
+}
+.selectorInput{
+    height: 100%;
+    width: 100%;
+}
+.selectorInput:hover{
+    border: none;
+}
+.selectorInput:focus{
+    border: none;
+}
+@media only screen and (max-width: 600px) {
+    .tableResponsive{
+        width:300px;
+        overflow-x:auto
+    }
+}
+.iconStyleCard{
+    background: #ffc0c0;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    text-align: center;
+    color: white;
+    font-size:30px;
+    vertical-align: middle; 
+    padding: 20px;
+}
+.iconStyleCard1{
+    background: #ffc400;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    text-align: center;
+    color: white;
+    font-size:30px;
+    vertical-align: middle; 
+    padding: 20px;
+}.iconStyleCard2{
+    background: rgb(41, 98, 255);
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    text-align: center;
+    color: white;
+    font-size:30px;
+    vertical-align: middle; 
+    padding: 20px;
+}
+.TextHead{
+    font-weight: bolder;
+    padding: 10px;
+}
