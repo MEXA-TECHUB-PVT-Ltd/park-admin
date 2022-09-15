@@ -3,7 +3,7 @@ import Link from '@mui/material/Link';
 import HomeIcon from '@mui/icons-material/Home';
 import { useNavigate } from 'react-router-dom'
 import { SearchOutlined, EyeTwoTone, DeleteTwoTone, ExclamationCircleOutlined, EditTwoTone } from '@ant-design/icons';
-import { Button, Input, Space, Table, Form }
+import { Button, Input, Space, Table, Form, Select }
     from 'antd';
 import React, { useRef, useState, useEffect } from 'react';
 import Highlighter from 'react-highlight-words';
@@ -11,7 +11,7 @@ import Grid from '@material-ui/core/Grid';
 import { Typography } from '@mui/material';
 import { Modal } from 'antd';
 import axios from "axios";
-import Select from '@mui/material/Select';
+// import Select from '@mui/material/Select';
 import WcIcon from '@mui/icons-material/Wc';
 import Box from '@mui/material/Box';
 import '../tableStyle.css'
@@ -24,6 +24,8 @@ import {
     useLoadScript,
     Marker,
 } from "@react-google-maps/api";
+const { Option } = Select;
+
 const libraries = ["places"];
 const mapContainerStyle = {
     height: "500px",
@@ -134,7 +136,9 @@ function Toilets() {
 
 
     const handleChange = (event) => {
-        setLocationIdType(event.target.value);
+        // setLocationIdType(event.target.value);
+        setLocationIdType(event);
+
     };
     const handleChangeEdit = (event) => {
         setLocationIdTypeEdit(event.target.value);
@@ -317,7 +321,7 @@ function Toilets() {
                     <a
                         onClick={() => {
                             // console.log(row._id)
-                            onToggleView(record._id,record.name,record.location.coordinates,record.locationType.locationType)
+                            onToggleView(record._id, record.name, record.location.coordinates, record.locationType.locationType)
                             // showModalAdd
                         }}
                     ><EditTwoTone style={iconFont} twoToneColor="green" /></a>
@@ -356,11 +360,11 @@ function Toilets() {
         console.log('Clicked cancel button');
         setVisibleView(false);
     };
-    const [editId,setEditId]=React.useState('')
-    const onToggleView = async (id,name,coordinates,locationType) => {
+    const [editId, setEditId] = React.useState('')
+    const onToggleView = async (id, name, coordinates, locationType) => {
         // setOpenUpdate(true);
         // setVisibleView(true);
-         setEditId(id)
+        setEditId(id)
         console.log(id);
         console.log(name);
         console.log(coordinates[0]);
@@ -382,7 +386,7 @@ function Toilets() {
         setVisibleView(true);
 
 
-       
+
     }
     const headers = {
         'Content-Type': 'application/json'
@@ -473,39 +477,36 @@ function Toilets() {
 
     };
     const handleOkUpdate = () => {
-            // POst Request Create Toilet
-            console.log(LocationIdType)
+        // POst Request Create Toilet
+        console.log(LocationIdType)
 
-            axios.put(`${url}api/toilet/updateToiletDetails`, {
-                // name: nameLocation,
-                // location: {
-                //     coordinates: [LatMark, LngMark]
-                // },
-                // locationTypeId: LocationIdType
-                toiletId :editId,
-                name : nameLocationEdit,
-                 long :markers.lat,
-                 lat: markers.lng
+        axios.put(`${url}api/toilet/updateToiletDetails`, {
+            // name: nameLocation,
+            // location: {
+            //     coordinates: [LatMark, LngMark]
+            // },
+            // locationTypeId: LocationIdType
+            toiletId: editId,
+            name: nameLocationEdit,
+            long: markers.lat,
+            lat: markers.lng
 
-            }, { headers }).then(response => {
-                console.log(response)
-                getAllData();
-                // setsupplyOrderId('');
-                // setdeliveryStatus('');
-                setVisibleView(false);
+        }, { headers }).then(response => {
+            console.log(response)
+            getAllData();
+            // setsupplyOrderId('');
+            // setdeliveryStatus('');
+            setVisibleView(false);
 
-                setConfirmLoadingAdd(false);
-                Modal.success({
-                    content: 'Updated Toilet Successfully',
-                });
+            setConfirmLoadingAdd(false);
+            Modal.success({
+                content: 'Updated Toilet Successfully',
+            });
 
+        })
+            .catch(err => {
+                console.log(err)
             })
-                .catch(err => {
-                    console.log(err)
-                })
-        
-
-
     };
 
     const handleCancelAdd = () => {
@@ -603,7 +604,12 @@ function Toilets() {
                                                 onChange={(e) => setnameLocation(e.target.value)
                                                 } />
                                         </Form.Item>
+                                        <Form.Item label="Location ">
+
+
+                                        </Form.Item>
                                         <div>
+
                                             <GoogleMap
                                                 id="map"
                                                 mapContainerStyle={mapContainerStyle}
@@ -626,21 +632,23 @@ function Toilets() {
                                                 />
                                             </GoogleMap>
                                         </div>
-                                        <Form.Item label="Type" value={locationTypeId} style={{marginTop:'20px'}}
+
+                                        <Form.Item label="Type" style={{ marginTop: '20px' }}
                                         >
+                                            <Select
+                                                defaultValue=""
+                                                value={LocationIdType}
+                                                onChange={handleChange}
+                                            >
+                                                <Option value=''>Select Location Type</Option>
 
-                                            {/* <Select  placeholder="Enter Location"
-                                                onChange={(e) => 
-                                                    // console.log(e)
-                                                    setlocationTypeId(e.target.value)
-                                                }>
-          {dataLocationType.map((row) => (
-            <Select.Option value={row._id}>{row.locationType}</Select.Option>
-          ))}
+                                                {dataLocationType.map((row) => (
+                                                    <Option value={row._id}>{row.locationType}</Option>
+                                                ))}
+                                            </Select>
 
-          </Select> */}
                                             {/* <FormControl fullWidth className='selectorInput'> */}
-                                                <Select className='selectorInput'
+                                            {/* <Select className='selectorInput'
                                                     value={LocationIdType}
                                                     onChange={handleChange}
                                                 >
@@ -648,7 +656,7 @@ function Toilets() {
                                                         <MenuItem value={row._id}>{row.locationType}</MenuItem>
                                                     ))}
 
-                                                </Select>
+                                                </Select> */}
                                             {/* </FormControl> */}
 
                                         </Form.Item>
@@ -683,52 +691,54 @@ function Toilets() {
                             onCancel={handleCancelView}
                             footer={null}
                         >
-                           <Form
-                                        labelCol={{
-                                            span: 4,
-                                        }}
-                                        wrapperCol={{
-                                            span: 14,
-                                        }}
-                                        layout="horizontal"
-                                    >
-                                        {/* <Form.Item label="Name ">
+                            <Form
+                                labelCol={{
+                                    span: 4,
+                                }}
+                                wrapperCol={{
+                                    span: 14,
+                                }}
+                                layout="horizontal"
+                            >
+                                {/* <Form.Item label="Name ">
                                             <Input value={discount} placeholder="Enter Location"
                                                 onChange={(e) => setdiscount(e.target.value)
                                                 } />
                                         </Form.Item> */}
-                                        <Form.Item label="Name ">
-                                            <Input value={nameLocationEdit} placeholder="Enter Location Name"
-                                                onChange={(e) => setnameLocationEdit(e.target.value)
-                                                } />
-                                        </Form.Item>
-                                        <div>
-                                            <GoogleMap
-                                                id="map"
-                                                mapContainerStyle={mapContainerStyle}
-                                                zoom={15}
-                                                center={center}
-                                                options={options}
-                                                onClick={(e) => {
-                                                    setMarkers(
-                                                        {
-                                                            lat: e.latLng.lat(),
-                                                            lng: e.latLng.lng()
-                                                        }
-                                                    )
+                                <Form.Item label="Name ">
+                                    <Input value={nameLocationEdit} placeholder="Enter Location Name"
+                                        onChange={(e) => setnameLocationEdit(e.target.value)
+                                        } />
+                                </Form.Item>
+                                <Form.Item label="Location ">
+</Form.Item>
+                                <div>
+                                    <GoogleMap
+                                        id="map"
+                                        mapContainerStyle={mapContainerStyle}
+                                        zoom={15}
+                                        center={center}
+                                        options={options}
+                                        onClick={(e) => {
+                                            setMarkers(
+                                                {
+                                                    lat: e.latLng.lat(),
+                                                    lng: e.latLng.lng()
+                                                }
+                                            )
 
-                                                }}
-                                                onLoad={onMapLoad}
-                                            >
-                                                <Marker key="added" position={markers}
+                                        }}
+                                        onLoad={onMapLoad}
+                                    >
+                                        <Marker key="added" position={markers}
 
-                                                />
-                                            </GoogleMap>
-                                        </div>
-                                        <Form.Item label="Type" style={{marginTop:'20px'}}
-                                        >
+                                        />
+                                    </GoogleMap>
+                                </div>
+                                <Form.Item label="Type" style={{ marginTop: '20px' }}
+                                >
 
-                                            {/* <Select  placeholder="Enter Location"
+                                    {/* <Select  placeholder="Enter Location"
                                                 onChange={(e) => 
                                                     // console.log(e)
                                                     setlocationTypeId(e.target.value)
@@ -738,8 +748,8 @@ function Toilets() {
           ))}
 
           </Select> */}
-                                            {/* <FormControl fullWidth className='selectorInput'> */}
-                                                {/* <Select className='selectorInput'
+                                    {/* <FormControl fullWidth className='selectorInput'> */}
+                                    {/* <Select className='selectorInput'
                                                     value={LocationIdTypeEdit}
                                                     onChange={handleChangeEdit}
                                                 >
@@ -748,25 +758,40 @@ function Toilets() {
                                                     ))}
 
                                                 </Select> */}
-                                            {/* </FormControl> */}
-                                            <Input value={LocationIdTypeEdit} placeholder="Enter Location Type"
-                                                onChange={(e) => setLocationIdTypeEdit(e.target.value)
-                                                } />
+                                    {/* </FormControl> */}
+                                    {/* <Input value={LocationIdTypeEdit} placeholder="Enter Location Type"
+                                        onChange={(e) => setLocationIdTypeEdit(e.target.value)
+                                        } /> */}
+                                        <Select
+                                                defaultValue=""
+                                                disabled
+                                                value={LocationIdTypeEdit}
+                                                onChange={
+                                                    (e) => console.log(e)
+                                                    // setLocationIdTypeEdit(e)
+                                                }
+                                            >
+                                                <Option value=''>Select Location Type</Option>
 
-                                        </Form.Item>
+                                                {dataLocationType.map((row) => (
+                                                    <Option value={row._id}>{row.locationType}</Option>
+                                                ))}
+                                            </Select>
 
-                                        <Form.Item
-                                            wrapperCol={{
-                                                offset: 8,
-                                                span: 16,
-                                            }}
-                                        >
-                                            <Button type="primary" htmlType="submit" onClick={handleOkUpdate} style={{ backgroundColor: '#1A513B', border: 'none' }}>
-                                                Update
-                                            </Button>
-                                        </Form.Item>
+                                </Form.Item>
 
-                                    </Form>
+                                <Form.Item
+                                    wrapperCol={{
+                                        offset: 8,
+                                        span: 16,
+                                    }}
+                                >
+                                    <Button type="primary" htmlType="submit" onClick={handleOkUpdate} style={{ backgroundColor: '#1A513B', border: 'none' }}>
+                                        Update
+                                    </Button>
+                                </Form.Item>
+
+                            </Form>
 
                             {/* <Grid container spacing={2}>
                                 <Grid item xs={12}>
