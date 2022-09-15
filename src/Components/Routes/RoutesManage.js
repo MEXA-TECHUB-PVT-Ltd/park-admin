@@ -88,19 +88,19 @@ function RoutesManage() {
 
     const [loading, setLoading] = useState(false);
     const getAllData1 = () => {
-        axios.get(`${url}api/routes/getAllRoutesTypes`)
+        axios.get(`${url}api/routes/getRouteByRouteTypeId/63231974ab0eb78613fa0ab1`)
             .then((response) => {
                 console.log("response.data");
-                console.log(response.data.data);
+                console.log(response.data.result);
 
-                setDataLocationType(response.data.data);
+                setDataLocationType(response.data.result);
                 // setLoading(true)
             })
             .catch(error => console.error(`Error:${error}`));
 
     }
     const getAllData = () => {
-        axios.get(`${url}api/routes/getRoutes`)
+        axios.get(`${url}api/routes/getRouteByRouteTypeId/63231974ab0eb78613fa0ab1`)
             .then((response) => {
                 const allData = response.data.result;
                 console.log(allData);
@@ -353,13 +353,13 @@ function RoutesManage() {
     const [confirmLoadingAdd, setConfirmLoadingAdd] = useState(false);
 
     const handleOkAdd = () => {
-        if (markers === '' || LocationIdType === '' || distance === '') {
+        if (markers === '' || distance === '') {
             Modal.success({
                 content: 'Calculate Route Then Continue',
             });
         } else {
             axios.post(`${url}api/routes/createRoute`, {
-                routeTypeId: LocationIdType,
+                routeTypeId: "63231974ab0eb78613fa0ab1",
                 pointA: {
                     location: {
                         coordinates: [markers.lat, markers.lng]
@@ -385,7 +385,7 @@ function RoutesManage() {
                 setDuration('')
                 setAPlace('')
                 setBPlace('')
-                setLocationIdType('')
+                // setLocationIdType('')
 
             })
                 .catch(err => {
@@ -661,7 +661,8 @@ function RoutesManage() {
                                                 <Select
                                                     style={{ width: '100%' }}
                                                     defaultValue=""
-                                                    value={LocationIdType}
+                                                    disabled
+                                                    value="Walking Route"
                                                     onChange={handleChange}
                                                 >
                                                     <Option value=''>Select Route Type</Option>
@@ -838,8 +839,9 @@ function RoutesManage() {
                                         <Select
                                             style={{ width: '100%' }}
                                             defaultValue=""
-                                            value={routeTypeEdit}
-                                            onChange={(e) => { setrouteTypeEdit(e) }}
+                                            disabled
+                                            value="Walking Route"
+                                            // onChange={(e) => { setrouteTypeEdit(e) }}
                                         >
                                             <Option value=''>Select Route Type</Option>
 
