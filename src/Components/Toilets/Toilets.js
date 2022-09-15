@@ -1,8 +1,7 @@
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import HomeIcon from '@mui/icons-material/Home';
-import { useNavigate } from 'react-router-dom'
-import { SearchOutlined, EyeTwoTone, DeleteTwoTone, ExclamationCircleOutlined, EditTwoTone } from '@ant-design/icons';
+import { SearchOutlined, DeleteTwoTone, ExclamationCircleOutlined, EditTwoTone } from '@ant-design/icons';
 import { Button, Input, Space, Table, Form, Select }
     from 'antd';
 import React, { useRef, useState, useEffect } from 'react';
@@ -11,14 +10,11 @@ import Grid from '@material-ui/core/Grid';
 import { Typography } from '@mui/material';
 import { Modal } from 'antd';
 import axios from "axios";
-// import Select from '@mui/material/Select';
 import WcIcon from '@mui/icons-material/Wc';
 import Box from '@mui/material/Box';
 import '../tableStyle.css'
 import url from '../url'
 import PropTypes from 'prop-types';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
 import {
     GoogleMap,
     useLoadScript,
@@ -54,18 +50,8 @@ const addbtn = {
     borderRadius: '20px',
     backgroundColor: '#1A513B',
     color: 'white',
-    // borderRadius:'50px'
 }
-// const data = [
-//     {
-//       key: '1',
-//       startingRoute:'any route',
-//       endingRoute:'any route',
-//       distance:'12km',
-//       walktime:'12 minutes',
 
-//     },
-// ]
 function Item(props) {
     const { sx, ...other } = props;
     return (
@@ -97,7 +83,6 @@ Item.propTypes = {
     ]),
 };
 function Toilets() {
-    let navigate = useNavigate();
     //Get API Axios
     const [data, setData] = useState([]);
 
@@ -283,29 +268,7 @@ function Toilets() {
                 </Space>
 
             ),
-            //   ...getColumnSearchProps('LocationIdType'),
         },
-        // {
-        //     title: 'Ending Route',
-        //     dataIndex: 'endingRoute',
-        //     key: 'endingRoute',
-        //     width: '20%',
-        //     ...getColumnSearchProps('endingRoute'),
-        // },
-        // {
-        //     title: 'Distance',
-        //     dataIndex: 'distance',
-        //     key: 'distance',
-        //     width: '20%',
-        //     ...getColumnSearchProps('distance'),
-        // },
-        // {
-        //     title: 'Walk Time',
-        //     dataIndex: 'walktime',
-        //     key: 'walktime',
-        //     width: '20%',
-        //     ...getColumnSearchProps('walktime'),
-        // },
         {
             title: 'Action',
             width: '20%',
@@ -325,17 +288,11 @@ function Toilets() {
                             // showModalAdd
                         }}
                     ><EditTwoTone style={iconFont} twoToneColor="green" /></a>
-                    {/* <a
-            onClick={() => {
-              // console.log(row._id)
-              onToggleView("record._id")
-            }}
-          >< EyeTwoTone style={iconFont} twoToneColor="orange" /></a> */}
+       
 
                 </Space>
 
             ),
-            //   ...getColumnSearchProps('LocationIdType'),
         },
     ];
     //   View 
@@ -362,16 +319,11 @@ function Toilets() {
     };
     const [editId, setEditId] = React.useState('')
     const onToggleView = async (id, name, coordinates, locationType) => {
-        // setOpenUpdate(true);
-        // setVisibleView(true);
         setEditId(id)
         console.log(id);
         console.log(name);
         console.log(coordinates[0]);
         console.log(locationType);
-
-
-
         setnameLocationEdit(name);
         setMarkers(
             {
@@ -379,14 +331,8 @@ function Toilets() {
                 lng: coordinates[1]
             }
         );
-        // handleChangeEdit(locationType)
         setLocationIdTypeEdit(locationType);
-
-
         setVisibleView(true);
-
-
-
     }
     const headers = {
         'Content-Type': 'application/json'
@@ -411,9 +357,10 @@ function Toilets() {
                         console.log(err)
                     })
                 console.log('OK');
-
+                Modal.success({
+                    content: 'Toilet Deleted Successfully',
+                });
             },
-
             onCancel() {
                 console.log('Cancel');
             },
@@ -422,13 +369,10 @@ function Toilets() {
     const deleteData = (IdData) => {
         console.log(IdData)
         showDeleteConfirm(IdData)
-
     }
     // Add 
     const [visibleAdd, setVisibleAdd] = useState(false);
     const [confirmLoadingAdd, setConfirmLoadingAdd] = useState(false);
-    const [modalTextAdd, setModalTextAdd] = useState('Content of the modal');
-
     const showModalAdd = () => {
         setVisibleAdd(true);
     };
@@ -436,15 +380,12 @@ function Toilets() {
     const [LngMark, setLngMark] = useState(false);
 
     const handleOkAdd = () => {
-        setModalTextAdd('Creating Toilet Location');
         setLatMark(markers.lat)
         setLngMark(markers.lng)
         if (markers === '' || LocationIdType === '' || nameLocation === '') {
             console.log(markers)
             console.log(LocationIdType)
             console.log(nameLocation)
-
-
             console.log('fill all fields')
         } else {
             // POst Request Create Toilet
@@ -460,8 +401,6 @@ function Toilets() {
             }, { headers }).then(response => {
                 console.log(response)
                 getAllData();
-                // setsupplyOrderId('');
-                // setdeliveryStatus('');
                 setVisibleAdd(false);
                 setConfirmLoadingAdd(false);
                 Modal.success({
@@ -473,19 +412,10 @@ function Toilets() {
                     console.log(err)
                 })
         }
-
-
     };
     const handleOkUpdate = () => {
-        // POst Request Create Toilet
         console.log(LocationIdType)
-
         axios.put(`${url}api/toilet/updateToiletDetails`, {
-            // name: nameLocation,
-            // location: {
-            //     coordinates: [LatMark, LngMark]
-            // },
-            // locationTypeId: LocationIdType
             toiletId: editId,
             name: nameLocationEdit,
             long: markers.lat,
@@ -494,8 +424,6 @@ function Toilets() {
         }, { headers }).then(response => {
             console.log(response)
             getAllData();
-            // setsupplyOrderId('');
-            // setdeliveryStatus('');
             setVisibleView(false);
 
             setConfirmLoadingAdd(false);
@@ -513,12 +441,8 @@ function Toilets() {
         console.log('Clicked cancel button');
         setVisibleAdd(false);
     };
-    const [discount, setdiscount] = useState("");
     const [dataLocationType, setDataLocationType] = useState([]);
-    const [locationTypeId, setlocationTypeId] = useState('');
     const [nameLocation, setnameLocation] = useState('');
-    const [dataLocationTypeEdit, setDataLocationTypeEdit] = useState([]);
-    const [locationTypeIdEdit, setlocationTypeIdEdit] = useState('');
     const [nameLocationEdit, setnameLocationEdit] = useState('');
 
 
@@ -535,9 +459,6 @@ function Toilets() {
 
     if (loadError) return "Error";
     if (!isLoaded) return "Loading...";
-
-
-
     return (
         <div style={{ marginBottom: '300px' }}>
             <div role="presentation">
@@ -580,7 +501,6 @@ function Toilets() {
                                 <Modal
                                     title="Add Toilet"
                                     visible={visibleAdd}
-                                    // onOk={handleOkAdd}
                                     confirmLoading={confirmLoadingAdd}
                                     onCancel={handleCancelAdd}
                                     footer={null}
@@ -594,11 +514,7 @@ function Toilets() {
                                         }}
                                         layout="horizontal"
                                     >
-                                        {/* <Form.Item label="Name ">
-                                            <Input value={discount} placeholder="Enter Location"
-                                                onChange={(e) => setdiscount(e.target.value)
-                                                } />
-                                        </Form.Item> */}
+
                                         <Form.Item label="Name ">
                                             <Input value={nameLocation} placeholder="Enter Location Name"
                                                 onChange={(e) => setnameLocation(e.target.value)
@@ -647,18 +563,6 @@ function Toilets() {
                                                 ))}
                                             </Select>
 
-                                            {/* <FormControl fullWidth className='selectorInput'> */}
-                                            {/* <Select className='selectorInput'
-                                                    value={LocationIdType}
-                                                    onChange={handleChange}
-                                                >
-                                                    {dataLocationType.map((row) => (
-                                                        <MenuItem value={row._id}>{row.locationType}</MenuItem>
-                                                    ))}
-
-                                                </Select> */}
-                                            {/* </FormControl> */}
-
                                         </Form.Item>
 
                                         <Form.Item
@@ -700,18 +604,13 @@ function Toilets() {
                                 }}
                                 layout="horizontal"
                             >
-                                {/* <Form.Item label="Name ">
-                                            <Input value={discount} placeholder="Enter Location"
-                                                onChange={(e) => setdiscount(e.target.value)
-                                                } />
-                                        </Form.Item> */}
                                 <Form.Item label="Name ">
                                     <Input value={nameLocationEdit} placeholder="Enter Location Name"
                                         onChange={(e) => setnameLocationEdit(e.target.value)
                                         } />
                                 </Form.Item>
                                 <Form.Item label="Location ">
-</Form.Item>
+                                </Form.Item>
                                 <div>
                                     <GoogleMap
                                         id="map"
@@ -738,45 +637,22 @@ function Toilets() {
                                 <Form.Item label="Type" style={{ marginTop: '20px' }}
                                 >
 
-                                    {/* <Select  placeholder="Enter Location"
-                                                onChange={(e) => 
-                                                    // console.log(e)
-                                                    setlocationTypeId(e.target.value)
-                                                }>
-          {dataLocationType.map((row) => (
-            <Select.Option value={row._id}>{row.locationType}</Select.Option>
-          ))}
+                                   
+                                    <Select
+                                        defaultValue=""
+                                        disabled
+                                        value={LocationIdTypeEdit}
+                                        onChange={
+                                            (e) => console.log(e)
+                                            // setLocationIdTypeEdit(e)
+                                        }
+                                    >
+                                        <Option value=''>Select Location Type</Option>
 
-          </Select> */}
-                                    {/* <FormControl fullWidth className='selectorInput'> */}
-                                    {/* <Select className='selectorInput'
-                                                    value={LocationIdTypeEdit}
-                                                    onChange={handleChangeEdit}
-                                                >
-                                                    {dataLocationType.map((row) => (
-                                                        <MenuItem value={row._id}>{row.locationType}</MenuItem>
-                                                    ))}
-
-                                                </Select> */}
-                                    {/* </FormControl> */}
-                                    {/* <Input value={LocationIdTypeEdit} placeholder="Enter Location Type"
-                                        onChange={(e) => setLocationIdTypeEdit(e.target.value)
-                                        } /> */}
-                                        <Select
-                                                defaultValue=""
-                                                disabled
-                                                value={LocationIdTypeEdit}
-                                                onChange={
-                                                    (e) => console.log(e)
-                                                    // setLocationIdTypeEdit(e)
-                                                }
-                                            >
-                                                <Option value=''>Select Location Type</Option>
-
-                                                {dataLocationType.map((row) => (
-                                                    <Option value={row._id}>{row.locationType}</Option>
-                                                ))}
-                                            </Select>
+                                        {dataLocationType.map((row) => (
+                                            <Option value={row._id}>{row.locationType}</Option>
+                                        ))}
+                                    </Select>
 
                                 </Form.Item>
 
@@ -790,31 +666,10 @@ function Toilets() {
                                         Update
                                     </Button>
                                 </Form.Item>
-
                             </Form>
-
-                            {/* <Grid container spacing={2}>
-                                <Grid item xs={12}>
-                                  
-
-                                </Grid>
-                                <Grid item xs={6}>
-                                    
-
-                                </Grid>
-                                 <Grid item xs={6}>
-                                    <Typography >some location</Typography>
-
-                                </Grid>
-                               
-                            </Grid> */}
-
                         </Modal>
                     </Grid>
-
                 </Grid>
-
-
             </div>
         </div>
     )
