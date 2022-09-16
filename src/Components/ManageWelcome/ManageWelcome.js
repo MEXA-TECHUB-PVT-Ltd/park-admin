@@ -418,7 +418,7 @@ function ManageWelcome() {
     const [discount, setdiscount] = useState("");
 
     return (
-        <div style={{ marginBottom:'300px'}}>
+        <div >
             <div role="presentation">
                 <Breadcrumbs aria-label="breadcrumb">
                     <Link

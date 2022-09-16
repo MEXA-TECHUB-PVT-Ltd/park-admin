@@ -255,7 +255,6 @@ function Toilets() {
                 <Space size="middle">
                     {record.location.coordinates}
                 </Space>
-
             ),
         },
         {
@@ -266,7 +265,6 @@ function Toilets() {
                 <Space size="middle">
                     {record.locationType.locationType}
                 </Space>
-
             ),
         },
         {
