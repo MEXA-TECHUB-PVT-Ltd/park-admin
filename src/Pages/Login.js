@@ -47,6 +47,7 @@ const ContainerStyle3 = {
 
 const headingStyle = {
   fontSize: '20px',
+  marginTop:'10px',
   fontFamily: 'Roboto Slab',
   color: 'black'
 
@@ -89,29 +90,37 @@ function Login() {
      setLoading1(true)
      setTimeout(() => {
        setLoading1(false)
-       axios.post(`${url}api/admin/login`, {
-        email: email,
-        password: password
-      }, { headers }).then(response => {
-        console.log(response)
-        const Id = response.data._id;
-        navigate('/home'
-          ,
-          {
-            state: {
-              ID: Id,
-              email: email,
+       if(email==''||password==''){
+        Modal.error({
+          title: 'This is an error message',
+          content: 'Please Fill All Fields!',
+        });
+       }else{
+        axios.post(`${url}api/admin/login`, {
+          email: email,
+          password: password
+        }, { headers }).then(response => {
+          console.log(response)
+          const Id = response.data._id;
+          navigate('/home'
+            ,
+            {
+              state: {
+                ID: Id,
+                email: email,
+              }
             }
-          }
-        );
-      })
-        .catch(err => {
-          console.log(err)
-          Modal.error({
-            title: 'This is an error message',
-            content: 'Invalid Credentials',
-          });
+          );
         })
+          .catch(err => {
+            console.log(err)
+            Modal.error({
+              title: 'This is an error message',
+              content: 'Invalid Credentials',
+            });
+          })
+       }
+      
      
      }, 3000)
   };
@@ -132,7 +141,6 @@ function Login() {
             <Avatar src={image} variant="square" style={logoStyle} ></Avatar>
             {/* <h6 style={headingStyle}>Logo</h6> */}
               <Card sx={{ minWidth: 275,borderRadius:5 }}>
-                <CardContent>
               <h6 style={headingStyle}>{heading}</h6>
 
                   <Form
@@ -188,9 +196,12 @@ function Login() {
                                     Login</h5>}
                       </Button>
                     </Form.Item>
+                      <div className="login-forget-password" onClick={()=>{
+                 navigate('/forgetPass')
+              }}> Forget Password!</div>
+                      
                   </Form>
 
-                </CardContent>
               </Card>
 
             </Grid>

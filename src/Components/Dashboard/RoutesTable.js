@@ -1,17 +1,19 @@
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import HomeIcon from '@mui/icons-material/Home';
-import { DeleteTwoTone, ExclamationCircleOutlined, EditTwoTone } from '@ant-design/icons';
+import { SearchOutlined, DeleteTwoTone, ExclamationCircleOutlined, EditTwoTone } from '@ant-design/icons';
 import { Button, Input, Space, Table, Form, Select }
     from 'antd';
 import React, { useRef, useState, useEffect } from 'react';
+import Highlighter from 'react-highlight-words';
 import Grid from '@material-ui/core/Grid';
 import { Typography } from '@mui/material';
 import { Modal } from 'antd';
 import axios from "axios";
+import WcIcon from '@mui/icons-material/Wc';
 import Box from '@mui/material/Box';
 import '../tableStyle.css'
-import PetsIcon from '@mui/icons-material/Pets';
+import AltRouteIcon from '@mui/icons-material/AltRoute';
 
 import url from '../url'
 import PropTypes from 'prop-types';
@@ -79,14 +81,14 @@ Item.propTypes = {
         PropTypes.object,
     ]),
 };
-function DogWalkTrack() {
+function RoutesTable() {
     //Get API Axios
     const [data, setData] = useState([]);
 
 
     const [loading, setLoading] = useState(false);
     const getAllData1 = () => {
-        axios.get(`${url}api/routes/getRouteByRouteTypeId/62fcdb4ff201e720aef6a3a2`)
+        axios.get(`${url}api/routes/getRouteByRouteTypeId/63231974ab0eb78613fa0ab1`)
             .then((response) => {
                 console.log("response.data");
                 console.log(response.data.result);
@@ -98,7 +100,7 @@ function DogWalkTrack() {
 
     }
     const getAllData = () => {
-        axios.get(`${url}api/routes/getRouteByRouteTypeId/62fcdb4ff201e720aef6a3a2`)
+        axios.get(`${url}api/routes/getRoutes`)
             .then((response) => {
                 const allData = response.data.result;
                 console.log(allData);
@@ -353,11 +355,11 @@ function DogWalkTrack() {
     const handleOkAdd = () => {
         if (markers === '' || distance === '') {
             Modal.success({
-                content: 'Calculate Dog Walk Route  Then Continue',
+                content: 'Calculate Route Then Continue',
             });
         } else {
             axios.post(`${url}api/routes/createRoute`, {
-                routeTypeId: "62fcdb4ff201e720aef6a3a2",
+                routeTypeId: "63231974ab0eb78613fa0ab1",
                 pointA: {
                     location: {
                         coordinates: [markers.lat, markers.lng]
@@ -376,7 +378,7 @@ function DogWalkTrack() {
                 setViewMapRoutes(false);
                 setConfirmLoadingAdd(false);
                 Modal.success({
-                    content: 'Created Dog Walk Route Successfully',
+                    content: 'Created Route Successfully',
                 });
                 setDirectionsResponse(null)
                 setDistance('')
@@ -471,7 +473,7 @@ function DogWalkTrack() {
             setVisibleView(false);
             setConfirmLoadingAdd(false);
             Modal.success({
-                content: 'Updated Dog Walk Route Successfully',
+                content: 'Updated Route Successfully',
             });
 
 
@@ -520,28 +522,8 @@ function DogWalkTrack() {
     if (!isLoaded) return "Loading...";
     return (
         <div >
-            <div role="presentation">
-                <Breadcrumbs aria-label="breadcrumb">
-                    <Link
-                        underline="hover"
-                        sx={{ display: 'flex', alignItems: 'center' }}
-                        color="inherit"
-                        onClick={handleClick}
-                    >
-                        <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
-                        Home
-                    </Link>
-                    <Link
-                        underline="hover"
-                        sx={{ display: 'flex', alignItems: 'center' }}
-                        color="text.primary"
-                    >
-                        <PetsIcon sx={{ mr: 0.5 }} fontSize="inherit" />
-                        Dog Walk Routes
-                    </Link>
-                </Breadcrumbs>
-            </div>
-            <div style={marginTop}>
+           
+            <div>
                 <Grid container spacing={2}>
 
                     <Grid item xs={12} md={12}>
@@ -549,17 +531,13 @@ function DogWalkTrack() {
                             sx={{ display: 'flex', p: 1, bgcolor: 'transparent', borderRadius: 1 }}
                         >
                             <Item sx={{ flexGrow: 2 }}>
-                                <Typography variant='h6' style={{ fontWeight: 700 }} >Dog Walk Routes</Typography>
+                                <Typography variant='h6' style={{ fontWeight: 700 }} >Routes</Typography>
                             </Item>
                             <Item>
-                                <Button variant="contained" style={addbtn}
-                                    onClick={showModalRoute}
-                                >
-                                    + Route
-                                </Button>
+                              
                                 <Modal
                                     width={850}
-                                    title="Add Dog Walk Route"
+                                    title="Add Route"
                                     visible={visibleAdd}
                                     confirmLoading={confirmLoadingAdd}
                                     onCancel={handleCancelAdd}
@@ -660,7 +638,7 @@ function DogWalkTrack() {
                                                     style={{ width: '100%' }}
                                                     defaultValue=""
                                                     disabled
-                                                    value="Dog Walking Route"
+                                                    value="Walking Route"
                                                     onChange={handleChange}
                                                 >
                                                     <Option value=''>Select Route Type</Option>
@@ -762,6 +740,9 @@ function DogWalkTrack() {
 
                                                                 })
                                                                 .catch(error => console.error(`Error:${error}`));
+                                                            // )
+                                                            // console.log(markers.lat)
+                                                            // console.log(markers.lng)
                                                         }} />
                                                         <Marker key="addedB" position={{ lat: markersB.lat, lng: markersB.lng }} label="B Marker" draggable={true} onDragEnd={(e) => {
 
@@ -780,7 +761,11 @@ function DogWalkTrack() {
 
                                                                 })
                                                                 .catch(error => console.error(`Error:${error}`));
+                                                            // )
+                                                            // console.log(markers.lat)
+                                                            // console.log(markers.lng)
                                                         }} />
+                                                        {/* <Marker position={center} /> */}
 
                                                         {directionsResponse && (<DirectionsRenderer directions={directionsResponse} />)}
 
@@ -831,8 +816,8 @@ function DogWalkTrack() {
                                             style={{ width: '100%' }}
                                             defaultValue=""
                                             disabled
-                                            value="Dog Walking Route"
-                                        // onChange={(e) => { setrouteTypeEdit(e) }}
+                                            value="Walking Route"
+                                            // onChange={(e) => { setrouteTypeEdit(e) }}
                                         >
                                             <Option value=''>Select Route Type</Option>
 
@@ -943,16 +928,18 @@ function DogWalkTrack() {
 
                                             </GoogleMap>
                                         </div>
+
                                     </Grid>
+
+
                                 </Grid>
                             </Form>
                         </Modal>
                     </Grid>
                 </Grid>
             </div>
-
         </div>
     )
 }
 
-export default DogWalkTrack
+export default RoutesTable

@@ -1,16 +1,14 @@
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import HomeIcon from '@mui/icons-material/Home';
-import { SearchOutlined, DeleteTwoTone, ExclamationCircleOutlined, EditTwoTone } from '@ant-design/icons';
-import { Button, Input, Space, Table, Form, Select }
+import {  DeleteTwoTone, ExclamationCircleOutlined, EditTwoTone } from '@ant-design/icons';
+import { Button, Input, Space, Table, Form, Select,Card }
     from 'antd';
-import React, { useRef, useState, useEffect } from 'react';
-import Highlighter from 'react-highlight-words';
+import React, { useState, useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
 import { Typography } from '@mui/material';
 import { Modal } from 'antd';
 import axios from "axios";
-import WcIcon from '@mui/icons-material/Wc';
 import Box from '@mui/material/Box';
 import '../tableStyle.css'
 import AltRouteIcon from '@mui/icons-material/AltRoute';
@@ -84,6 +82,10 @@ Item.propTypes = {
 function RoutesManage() {
     //Get API Axios
     const [data, setData] = useState([]);
+    const [dataRoutes, setDataRoutes] = useState([]);
+    const [dataRoutesTypes, setDataRoutesTypes] = useState([]);
+
+
 
 
     const [loading, setLoading] = useState(false);
@@ -110,9 +112,35 @@ function RoutesManage() {
             .catch(error => console.error(`Error:${error}`));
 
     }
+    const getAllDataRoutes = () => {
+        axios.get(`${url}api/routes/getRoutes`)
+            .then((response) => {
+                const allData = response;
+                console.log(allData);
+                setDataRoutes(response.data.result);
+                setLoading(true)
+            })
+            .catch(error => console.error(`Error:${error}`));
+
+    }
+    const getAllDataRoutesTypes = () => {
+        axios.get(`${url}api/routes/getAllRoutesTypes`)
+            .then((response) => {
+                const allData = response;
+                console.log("allData");
+                console.log(allData);
+
+                setDataRoutesTypes(response.data.data);
+                // setLoading(true)
+            })
+            .catch(error => console.error(`Error:${error}`));
+
+    }
     useEffect(() => {
         getAllData();
         getAllData1();
+        getAllDataRoutes();
+        getAllDataRoutesTypes();
         setMarkers(
             {
                 lat: 56.002716,
@@ -521,7 +549,7 @@ function RoutesManage() {
     if (loadError) return "Error";
     if (!isLoaded) return "Loading...";
     return (
-        <div style={{ marginBottom: '300px' }}>
+        <div >
             <div role="presentation">
                 <Breadcrumbs aria-label="breadcrumb">
                     <Link
@@ -807,6 +835,21 @@ function RoutesManage() {
                             </Item>
                         </Box>
 
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                        <Card title="Total Routes" size="small">
+                            {dataRoutes.length}
+                        </Card>
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                        <Card title="Total Route Types" size="small">
+                            {dataRoutesTypes.length}
+                        </Card>
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                        <Card title="Total Walking Routes" size="small">
+                            {data.length}
+                        </Card>
                     </Grid>
                     <Grid item xs={12} md={12}>
                         <div className='tableResponsive'>

@@ -587,7 +587,7 @@ function ResponsiveDrawer(props) {
   return (
     <Box sx={{ display: 'flex' }}>
        
-      {/* <AppBar position="fixed" sx={{ flexGrow: 1 }}>
+      <AppBar position="fixed" sx={{ flexGrow: 1 }}>
         <Toolbar className={classes.BackGround}>
           <IconButton
             color="inherit"
@@ -658,11 +658,12 @@ function ResponsiveDrawer(props) {
           <Modal
             title="Update Account"
             visible={visibleAccount}
-            onOk={handleOkAccount}
+            // onOk={handleOkAccount}
             confirmLoading={confirmLoadingAccount}
             onCancel={handleCancelAccount}
+            footer={null}
           >
-            <Form
+           <Form
               labelCol={{
                 span: 4,
               }}
@@ -681,10 +682,20 @@ function ResponsiveDrawer(props) {
                   (e) => setpassword(e.target.value)
                 } />
               </Form.Item>
+              <Form.Item
+        wrapperCol={{
+          offset: 8,
+          span: 16,
+        }}
+      >
+        <Button type="primary" htmlType="submit" onClick={handleOkAccount} style={{backgroundColor:'#1A513B',border:'none'}}>
+          Submit
+        </Button>
+      </Form.Item>
             </Form>
           </Modal>
         </Toolbar>
-      </AppBar> */}
+      </AppBar>
 
       <Box
         component="nav"
@@ -718,7 +729,7 @@ function ResponsiveDrawer(props) {
         </Drawer>
       </Box>
       <Main open={open} style={MarginTop} className={classes.BackGround}>
-      <Box
+      {/* <Box
       sx={{
         marginTop:'-50px',
         width: '100%',
@@ -847,7 +858,7 @@ function ResponsiveDrawer(props) {
           </Modal>
         </Toolbar>
 
-   </Box>
+   </Box> */}
         <Grid container spacing={2}>
           <Grid item xs={12} md={12} style={paddingGrid}>
             {/* data={props.data} */}

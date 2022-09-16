@@ -72,20 +72,22 @@ const useStyles = makeStyles({
 
     }, remarksHeader: {
         fontSize: '16px',
-        marginTop: '-15px'
+        marginTop: '-15px',
+        paddingLeft: "20px",
+
         // padding: '10px',
         // display: 'flex'
     }, remarksImg: {
         padding: "20px",
         alignContent: 'center'
     }, remarksHeader2: {
-        padding: "10px",
+        paddingLeft: "20px",
         alignContent: "center",
         fontSize: '20px',
         fontWeight: '500'
     },
     remarksHeader3: {
-        padding: '5px',
+        paddingLeft: "20px",
         alignContent: "center",
         fontSize: '14px'
     }
@@ -134,10 +136,10 @@ function GridDashboard() {
     //get-all-topics
     const [data, setData] = useState([]);
     const getAllData = () => {
-        axios.get(`${url}user/get-all-user`)
+        axios.get(`${url}api/user/getAllUsers/`)
             .then((response) => {
-                const allData = response.data;
-                console.log(allData.length);
+                const allData = response.data.userDetails;
+                console.log(allData);
                 setData(allData.length);
             })
             .catch(error => console.error(`Error:${error}`));
@@ -146,9 +148,9 @@ function GridDashboard() {
     //get-all-transactions
     const [data1, setData1] = useState([]);
     const getAllData1 = () => {
-        axios.get(`${url}user/get-all-transaction`)
+        axios.get(`${url}api/routes/getRouteByRouteTypeId/63231974ab0eb78613fa0ab1`)
             .then((response) => {
-                const allData = response.data;
+                const allData = response.data.result;
                 console.log(allData.length);
                 setData1(allData.length);
             })
@@ -157,9 +159,9 @@ function GridDashboard() {
     }
     const [data2, setData2] = useState([]);
     const getAllData2 = () => {
-        axios.get(`${url}admin/get-all-promo`)
+        axios.get(`${url}api/routes/getRouteByRouteTypeId/62fcdb4ff201e720aef6a3a2`)
             .then((response) => {
-                const allData = response.data;
+                const allData = response.data.result;
                 console.log(allData.length);
                 setData2(allData.length);
             })
@@ -168,53 +170,28 @@ function GridDashboard() {
     }
     const [data3, setData3] = useState([]);
     const getAllData3 = () => {
-        axios.get(`${url}user/get-verified-users`)
+        axios.get(`${url}api/toilet/getToilets`)
             .then((response) => {
-                const allData = response.data;
-                console.log(allData.length);
+                const allData = response.data.data;
+                console.log(allData);
                 setData3(allData.length);
             })
             .catch(error => console.error(`Error:${error}`));
 
     }
-    const [data4, setData4] = useState([]);
-
-    const getAllData4 = () => {
-        axios.get(`${url}user/get-completed`)
-            .then((response) => {
-                const allData = response.data;
-                console.log(allData.length);
-                setData4(allData.length);
-            })
-            .catch(error => console.error(`Error:${error}`));
-
-    }
-    const [data5, setData5] = useState([]);
-
-    const getAllData5 = () => {
-        axios.get(`${url}user/get-pendings`)
-            .then((response) => {
-                const allData = response.data;
-                console.log(allData.length);
-                setData5(allData.length);
-            })
-            .catch(error => console.error(`Error:${error}`));
-
-    }
+   
 
     useEffect(() => {
         getAllData();
         getAllData1();
         getAllData2();
         getAllData3();
-        getAllData4();
-        getAllData5();
 
     }, []);
 
     return (
         <div>
-            <Grid container spacing={2} style={{height:'100vh'}}>
+            <Grid container spacing={2} >
                 {/* <Grid item xs={12} md={12}>
                     <div className={classes.HeadingWelcome}>Welcome Admin!</div>
                 </Grid> */}
@@ -232,7 +209,7 @@ function GridDashboard() {
                                         <Grid item xs={12} md={9} >
                                             <Grid container spacing={2}>
                                                 <Grid item xs={12} md={12} >
-                                                    <div className={classes.remarksHeader2}>56</div>
+                                                    <div className={classes.remarksHeader2}>{data}</div>
 
                                                 </Grid>
                                                 <Grid item xs={12} md={12} >
@@ -265,11 +242,11 @@ function GridDashboard() {
                                         <Grid item xs={12} md={9} >
                                             <Grid container spacing={2}>
                                                 <Grid item xs={12} md={12} >
-                                                    <div className={classes.remarksHeader2}>30</div>
+                                                    <div className={classes.remarksHeader2}>{data1}</div>
 
                                                 </Grid>
                                                 <Grid item xs={12} md={12} >
-                                                    <div className={classes.remarksHeader}>Total Walking Routes</div>
+                                                    <div className={classes.remarksHeader}>Walking Routes</div>
 
                                                 </Grid>
                                             </Grid>
@@ -298,7 +275,7 @@ function GridDashboard() {
                                         <Grid item xs={12} md={9} >
                                             <Grid container spacing={2}>
                                                 <Grid item xs={12} md={12} >
-                                                    <div className={classes.remarksHeader2}>6</div>
+                                                    <div className={classes.remarksHeader2}>{data2}</div>
 
                                                 </Grid>
                                                 <Grid item xs={12} md={12} >
@@ -332,7 +309,7 @@ function GridDashboard() {
                                         <Grid item xs={12} md={9} >
                                             <Grid container spacing={2}>
                                                 <Grid item xs={12} md={12} >
-                                                    <div className={classes.remarksHeader2}>5</div>
+                                                    <div className={classes.remarksHeader2}>{data3}</div>
 
                                                 </Grid>
                                                 <Grid item xs={12} md={12} >

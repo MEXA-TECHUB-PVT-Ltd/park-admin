@@ -24,7 +24,7 @@ const { Option } = Select;
 
 const libraries = ["places"];
 const mapContainerStyle = {
-    height: "500px",
+    height: "300px",
     width: "470px",
 };
 const options = {
@@ -125,9 +125,7 @@ function Toilets() {
         setLocationIdType(event);
 
     };
-    const handleChangeEdit = (event) => {
-        setLocationIdTypeEdit(event.target.value);
-    };
+
     // Add 
     function handleClick(event) {
         event.preventDefault();
@@ -404,6 +402,8 @@ function Toilets() {
                 Modal.success({
                     content: 'Created Toilet Successfully',
                 });
+                setLocationIdType('')
+                setnameLocation('')
 
             })
                 .catch(err => {
@@ -458,7 +458,7 @@ function Toilets() {
     if (loadError) return "Error";
     if (!isLoaded) return "Loading...";
     return (
-        <div style={{ marginBottom: '300px' }}>
+        <div >
             <div role="presentation">
                 <Breadcrumbs aria-label="breadcrumb">
                     <Link

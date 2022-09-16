@@ -8,7 +8,7 @@ import GrainIcon from '@mui/icons-material/Grain';
 import GridDashboard from './GridDashboard'
 import { Grid } from '@mui/material'
 import { makeStyles } from '@material-ui/core/styles'
-import GridDashboard2 from './GridDashboard2';
+import RoutesTable from './RoutesTable';
 
 function handleClick(event) {
   event.preventDefault();
@@ -95,13 +95,16 @@ const useStyles = makeStyles({
 
   }
 })
+const marginTop = {
+  marginTop: '30px'
+}
 function Dashboard() {
 const classes = useStyles();
 
   return (
     <div>
       <div role="presentation" onClick={handleClick}>
-      <Breadcrumbs aria-label="breadcrumb">
+      <Breadcrumbs aria-label="breadcrumb" >
         <Link
           underline="hover"
           sx={{ display: 'flex', alignItems: 'center' }}
@@ -113,11 +116,11 @@ const classes = useStyles();
         </Link>
       </Breadcrumbs>
     </div>
-    <div>
+    <div  style={marginTop}>
     <Grid container spacing={2} >
                 <Grid item xs={12} md={12}>
                 <div className={classes.HeadingWelcome}>Welcome Admin!</div>
-                <div className={classes.HeadingWelcomePara}>This page is designed to give some important information about the application. Let's make someting together!</div>
+                {/* <div className={classes.HeadingWelcomePara}>This page is designed to give some important information about the application. Let's make someting together!</div> */}
                 {/* <div className={classes.HeadingWelcome}>Avatar</div> */}
 
                 </Grid>
@@ -126,6 +129,11 @@ const classes = useStyles();
                {/* Cards  */}
                <GridDashboard/>
                 </Grid>
+                <Grid item xs={12} md={12}>
+
+{/* Cards  */}
+<RoutesTable/>
+ </Grid>
                 {/* <Grid item xs={12} md={12}>
                 <GridDashboard2/>
                 </Grid> */}

@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import ResponsiveDrawer from './Pages/ResponsiveDrawer';
 import Home from './Pages/Home';
+import ForgetPass from './Pages/ForgetPass';
 
 function App() {
   return (
@@ -22,6 +23,9 @@ function App() {
         </Routes>
         <Routes>
           <Route exact path="/home" element={<Home />}></Route>
+        </Routes>
+        <Routes>
+          <Route exact path="/forgetPass" element={<ForgetPass />}></Route>
         </Routes>
         </Router>
         </div>

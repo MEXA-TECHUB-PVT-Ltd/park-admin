@@ -1,23 +1,39 @@
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import HomeIcon from '@mui/icons-material/Home';
-import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
-import { useNavigate } from 'react-router-dom'
-import { SearchOutlined, EyeTwoTone, DeleteTwoTone, ExclamationCircleOutlined,EditTwoTone  } from '@ant-design/icons';
-import { Button, Input, Space, Table, Form } from 'antd';
+import { EditTwoTone, DeleteTwoTone, ExclamationCircleOutlined, EyeTwoTone } from '@ant-design/icons';
+import { Button, Input, Space, Table, Form, Select, Modal, Tabs, Card }
+    from 'antd';
 import React, { useRef, useState, useEffect } from 'react';
 import Highlighter from 'react-highlight-words';
 import Grid from '@material-ui/core/Grid';
 import { Typography } from '@mui/material';
-import PetsIcon from '@mui/icons-material/Pets';
-import AltRouteIcon from '@mui/icons-material/AltRoute';
-import { Modal } from 'antd';
 import axios from "axios";
+import WcIcon from '@mui/icons-material/Wc';
 import Box from '@mui/material/Box';
 import '../tableStyle.css'
 import url from '../url'
-import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled';
 import PropTypes from 'prop-types';
+import {
+    GoogleMap,
+    useLoadScript,
+    Marker,
+} from "@react-google-maps/api";
+const { Option } = Select;
+
+const libraries = ["places"];
+const mapContainerStyle = {
+    height: "300px",
+    width: "470px",
+};
+const options = {
+    disableDefaultUI: true,
+    zoomControl: true,
+};
+const center = {
+    lat: 43.6532,
+    lng: -79.3832,
+};
 
 const { confirm } = Modal;
 
@@ -30,21 +46,11 @@ const marginTop = {
 }
 const addbtn = {
     height: '50px',
-    borderRadius:'20px',
+    borderRadius: '20px',
     backgroundColor: '#1A513B',
     color: 'white',
-    // borderRadius:'50px'
 }
-const data = [
-    {
-      key: '1',
-      startingRoute:'any route',
-      endingRoute:'any route',
-      distance:'12km',
-      walktime:'12 minutes',
 
-    },
-]
 function Item(props) {
     const { sx, ...other } = props;
     return (
@@ -76,27 +82,54 @@ Item.propTypes = {
     ]),
 };
 function CarParkingSpace() {
-    let navigate = useNavigate();
     //Get API Axios
-    // const [data, setData] = useState([]);
+    const [data, setData] = useState([]);
+    const [data1, setData1] = useState([]);
 
 
-    // const [loading, setLoading] = useState(false);
+
+    const [loading, setLoading] = useState(false);
+    const getAllData1 = () => {
+        axios.get(`${url}api/parking/getOnlyParkedCars`)
+            .then((response) => {
+                const allData = response.data.data;
+                console.log(allData);
+                setData1(response.data.data);
+                setLoading(true)
+            })
+            .catch(error => console.error(`Error:${error}`));
+
+    }
     const getAllData = () => {
-    //     axios.get(`${url}admin/get-all-promo`)
-    //         .then((response) => {
-    //             const allData = response.data;
-    //             console.log(allData);
-    //             setData(response.data);
-    //             setLoading(true)
-    //         })
-    //         .catch(error => console.error(`Error:${error}`));
+        axios.get(`${url}api/parking/getParkings`)
+            .then((response) => {
+                const allData = response.data.data;
+                console.log(allData);
+                setData(response.data.data);
+                setLoading(true)
+            })
+            .catch(error => console.error(`Error:${error}`));
+
+    }
+    const [capacity, setCapacity] = useState([]);
+
+    const getAllDataCapacity = () => {
+        axios.get(`${url}api/parkCapacity/getParkingCapacity`)
+            .then((response) => {
+                const allData = response.data.result[0];
+                console.log(allData);
+                setCapacity(response.data.result[0].capacity);
+            })
+            .catch(error => console.error(`Error:${error}`));
 
     }
     useEffect(() => {
         getAllData();
+        getAllData1();
+        getAllDataCapacity();
 
     }, []);
+    const [LocationIdType, setLocationIdType] = React.useState('');
     // Add 
     function handleClick(event) {
         event.preventDefault();
@@ -120,119 +153,48 @@ function CarParkingSpace() {
         setSearchText('');
     };
 
-    const getColumnSearchProps = (dataIndex) => ({
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-            <div
-                style={{
-                    padding: 8,
-                }}
-            >
-                <Input
-                    ref={searchInput}
-                    placeholder={`Search ${dataIndex}`}
-                    value={selectedKeys[0]}
-                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                    onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-                    style={{
-                        marginBottom: 8,
-                        display: 'block',
-                    }}
-                />
-                <Space>
-                    <Button
-                        type="primary"
-                        onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-                        icon={<SearchOutlined />}
-                        size="small"
-                        style={{
-                            width: 90,
-                        }}
-                    >
-                        Search
-                    </Button>
-                    <Button
-                        onClick={() => clearFilters && handleReset(clearFilters)}
-                        size="small"
-                        style={{
-                            width: 90,
-                        }}
-                    >
-                        Reset
-                    </Button>
-                    <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            confirm({
-                                closeDropdown: false,
-                            });
-                            setSearchText(selectedKeys[0]);
-                            setSearchedColumn(dataIndex);
-                        }}
-                    >
-                        Filter
-                    </Button>
-                </Space>
-            </div>
-        ),
-        filterIcon: (filtered) => (
-            <SearchOutlined
-                style={{
-                    color: filtered ? '#1890ff' : undefined,
-                }}
-            />
-        ),
-        onFilter: (value, record) =>
-            record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
-        onFilterDropdownVisibleChange: (visible) => {
-            if (visible) {
-                setTimeout(() => searchInput.current?.select(), 100);
-            }
-        },
-        render: (text) =>
-            searchedColumn === dataIndex ? (
-                <Highlighter
-                    highlightStyle={{
-                        backgroundColor: '#ffc069',
-                        padding: 0,
-                    }}
-                    searchWords={[searchText]}
-                    autoEscape
-                    textToHighlight={text ? text.toString() : ''}
-                />
-            ) : (
-                text
-            ),
-    });
+
 
     const columns = [
         {
-            title: 'Starting Route',
-            dataIndex: 'startingRoute',
-            key: 'startingRoute',
+            title: 'Car Plate Number',
             width: '20%',
-            ...getColumnSearchProps('startingRoute'),
+            key: 'carPlateNumber',
+            render: (_, record) => (
+                <Space size="middle">
+                    {record.carPlateNumber}
+                </Space>
+            ),
         },
         {
-            title: 'Ending Route',
-            dataIndex: 'endingRoute',
-            key: 'endingRoute',
+            title: 'Location Address',
             width: '20%',
-            ...getColumnSearchProps('endingRoute'),
+            key: 'location',
+            render: (_, record) => (
+                <Space size="middle">
+                    {record.location.coordinates}
+                </Space>
+            ),
         },
         {
-            title: 'Distance',
-            dataIndex: 'distance',
-            key: 'distance',
+            title: 'Comment',
             width: '20%',
-            ...getColumnSearchProps('distance'),
+            key: 'comment',
+            render: (_, record) => (
+                <Space size="middle">
+                    {record.comment}
+                </Space>
+            ),
         },
         {
-            title: 'Walk Time',
-            dataIndex: 'walktime',
-            key: 'walktime',
+            title: 'Park Time',
             width: '20%',
-            ...getColumnSearchProps('walktime'),
+            key: 'parkTime',
+            render: (_, record) => (
+                <Space size="middle">
+                    {record.parkTime}
+                </Space>
+            ),
         },
         {
             title: 'Action',
@@ -246,77 +208,49 @@ function CarParkingSpace() {
                             deleteData(record._id)
                         }}
                     ><DeleteTwoTone style={iconFont} twoToneColor="red" /></a>
-                     <a
-            onClick={() => {
-              // console.log(row._id)
-              onToggleView("sghdjhas")
-            // showModalAdd
-            }}
-          ><EditTwoTone   style={iconFont} twoToneColor="green" /></a>
-          <a
-            onClick={() => {
-              // console.log(row._id)
-              onToggleView("record._id")
-            }}
-          >< EyeTwoTone style={iconFont} twoToneColor="orange" /></a>
+                    <a
+                        onClick={() => {
+                            // console.log(row._id)
+                            onToggleView(record._id, record.userId, record.location.coordinates, record.carPlateNumber, record.comment)
+                            // showModalAdd
+                        }}
+                    ><EyeTwoTone style={iconFont} twoToneColor="green" /></a>
+
 
                 </Space>
 
             ),
-            //   ...getColumnSearchProps('age'),
         },
     ];
     //   View 
     const [visibleView, setVisibleView] = useState(false);
     const [confirmLoadingView, setConfirmLoadingView] = useState(false);
-    const [modalTextView, setModalTextView] = useState('Content of the modal');
-
-    const showModalView = () => {
-        setVisibleView(true);
-    };
-
-    const handleOkView = () => {
-        setModalTextView('The modal will be closed after two seconds');
-        setConfirmLoadingView(true);
-        setTimeout(() => {
-            setVisibleView(false);
-            setConfirmLoadingView(false);
-        }, 2000);
-    };
 
     const handleCancelView = () => {
         console.log('Clicked cancel button');
         setVisibleView(false);
     };
-    const onToggleView = async (id) => {
-        // setOpenUpdate(true);
-        setVisibleView(true);
+    const [editId, setEditId] = React.useState('')
+    const [plateNo, setPlateNo] = React.useState('')
+    const [showContact, setshowContact] = useState(false);
 
+
+    const onToggleView = async (id, userId, coordinates, carPlateNo, comment) => {
+        setEditId(id)
         console.log(id);
-
-        // await axios.get(`${url}doctor/get-doctor`, {
-        //     params: {
-        //         _id: id
-        //     }
-        // }, { headers }).then(response => {
-        //     console.log('response')
-        //     console.log(response.data);
-        //     // setIdData(response.data._id);
-        //     // setUserName(response.data.username);
-        //     // setEmail(response.data.email);
-        //     // setStartTime(response.data.startTime);
-        //     // setEndTime(response.data.endTime);
-        //     // setLocation(response.data.location);
-        //     // setDoctorFee(response.data.doctorFee)
-        //     // setSubscriptionType(response.data.price)
-        //     // setImgData(response.data.image)
-        //     // setDetail(response.data.detail)
-        //     // setValueRate(response.data.totalRating)
-
-        // })
-        //     .catch(err => {
-        //         console.log(err)
-        //     })
+        console.log(userId);
+        console.log(coordinates[0]);
+        console.log(carPlateNo);
+        setPlateNo(carPlateNo)
+        setcommentEdit(comment);
+        setMarkers(
+            {
+                lat: coordinates[0],
+                lng: coordinates[1]
+            }
+        );
+        // setLocationIdTypeEdit(locationType);
+        setVisibleView(true);
     }
     const headers = {
         'Content-Type': 'application/json'
@@ -324,28 +258,27 @@ function CarParkingSpace() {
     // Delete 
     const showDeleteConfirm = (IdData) => {
         confirm({
-            title: 'Are you sure delete this Route?',
+            title: 'Are you sure delete this Car Parked?',
             icon: <ExclamationCircleOutlined />,
-            //   content: 'Some descriptions',
             okText: 'Yes',
             okType: 'danger',
             cancelText: 'No',
 
             onOk() {
+                // Api 
+                axios.delete(`${url}api/parking/deleteParking/${IdData}`, { headers })
+                    .then(res => {
+                        console.log(res);
+                        console.log(res.data);
+                        getAllData();
+                    }).catch(err => {
+                        console.log(err)
+                    })
                 console.log('OK');
-                // axios.delete(`${url}admin/delete-promocode`, {
-                //     data: {
-                //         _id: IdData
-                //     }
-                // }, { headers })
-                //     .then(res => {
-                //         console.log(res);
-                //         getAllData()
-                //     }).catch(err => {
-                //         console.log(err)
-                //     })
+                Modal.success({
+                    content: 'Parking Car Deleted Successfully',
+                });
             },
-
             onCancel() {
                 console.log('Cancel');
             },
@@ -354,69 +287,52 @@ function CarParkingSpace() {
     const deleteData = (IdData) => {
         console.log(IdData)
         showDeleteConfirm(IdData)
-
     }
-    // Add 
-    // Add 
-    const [visibleAdd, setVisibleAdd] = useState(false);
-    const [confirmLoadingAdd, setConfirmLoadingAdd] = useState(false);
-    const [modalTextAdd, setModalTextAdd] = useState('Content of the modal');
+    const [commentEdit, setcommentEdit] = useState('');
+    // Google Map 
+    const { isLoaded, loadError } = useLoadScript({
+        googleMapsApiKey: "AIzaSyAYEkl4Du9zEcm1X2u1HEepM8DAuk9dYUk",
+        libraries,
+    });
+    const [markers, setMarkers] = React.useState([]);
+    const mapRef = React.useRef();
+    const onMapLoad = React.useCallback((map) => {
+        mapRef.current = map;
+    }, []);
 
-    const showModalAdd = () => {
-        setVisibleAdd(true);
+    if (loadError) return "Error";
+    if (!isLoaded) return "Loading...";
+    // Modal Capacity Edit 
+
+    const showModalContact = () => {
+        console.log("True")
+        setshowContact(true);
     };
 
-    const handleOkAdd = () => {
-        setModalTextAdd('Creating Discount');
-        // submitHandler
-        // setConfirmLoadingAdd(true);
-        setVisibleAdd(false);
-        setConfirmLoadingAdd(false);
-        Modal.success({
-            content: 'Created Route Successfully',
-        });
-        // setTimeout(() => {
-            // setVisibleAdd(false);
-            // setConfirmLoadingAdd(false);
-            // Modal.success({
-            //     content: 'Created Route Successfully',
-            // });
-            // if (discount > 100) {
-            //     Modal.error({
-            //         title: 'Discount should be in percentage',
-            //     });
-            //     setdiscount("");
+    const handleOkContact = () => {
+        axios.post(`${url}api/parkCapacity/addCapacity`, {
+            capacity: capacity
 
-            // } else {
-            //     axios.post(`${url}admin/create-promocode`, {
-            //         discount: discount,
-            //     }, { headers }).then(response => {
-            //         console.log(response)
-            //         setdiscount("");
-            //         getAllData()
-            //         // Clear Dta 
-            //         Modal.success({
-            //             content: 'PromoCode Generated Successfully',
-            //         });
-            //         // setOpenAdd(false);
+        }, { headers }).then(response => {
+            console.log(response)
+            getAllData();
+            getAllData1();
+            setshowContact(false);
+            Modal.success({
+                content: 'Updated Capacity Successfully',
+            });
 
-            //     })
-            //         .catch(err => {
-            //             console.log(err)
-            //         })
-            // }
-
-        // }, 2000);
+        })
+            .catch(err => {
+                console.log(err)
+            })
     };
 
-    const handleCancelAdd = () => {
-        console.log('Clicked cancel button');
-        setVisibleAdd(false);
+    const handleCancelContact = () => {
+        setshowContact(false);
     };
-    const [discount, setdiscount] = useState("");
-
     return (
-        <div style={{ marginBottom:'300px'}}>
+        <div >
             <div role="presentation">
                 <Breadcrumbs aria-label="breadcrumb">
                     <Link
@@ -424,7 +340,6 @@ function CarParkingSpace() {
                         sx={{ display: 'flex', alignItems: 'center' }}
                         color="inherit"
                         onClick={handleClick}
-                    //   href="/drawer"
                     >
                         <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
                         Home
@@ -433,9 +348,8 @@ function CarParkingSpace() {
                         underline="hover"
                         sx={{ display: 'flex', alignItems: 'center' }}
                         color="text.primary"
-                    //   href="/material-ui/getting-started/installation/"
                     >
-                        <DirectionsCarFilledIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+                        <WcIcon sx={{ mr: 0.5 }} fontSize="inherit" />
                         Car Parking Space
                     </Link>
                 </Breadcrumbs>
@@ -450,18 +364,90 @@ function CarParkingSpace() {
                             <Item sx={{ flexGrow: 2 }}>
                                 <Typography variant='h6' style={{ fontWeight: 700 }} >Car Parking Space</Typography>
                             </Item>
-                            {/* <Item>
-                                <Button variant="contained" style={addbtn}
-                                    onClick={showModalAdd}
-                                >
-                                    + Route
-                                </Button>
+
+                        </Box>
+
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                        <Card title="Car Parking Capacity" size="small">
+
+                            <Grid container spacing={2} >
+
+                                <Grid item xs={11} md={11}>
+                                    {capacity}
+
+                                </Grid>
+                                <Grid item xs={1} md={1}>
+                                    <EditTwoTone
+                                        onClick={showModalContact}
+                                    />
+                                    {/* Contact  */}
+                                    <Modal
+                                        title="Edit Car Parking Space Capacity"
+                                        open={showContact}
+                                        visible={showContact}
+                                        // //    confirmLoading={confirmLoadingAdd}
+                                        onCancel={handleCancelContact}
+                                        footer={null}
+                                    >
+                                        <Form
+                                            labelCol={{
+                                                span: 4,
+                                            }}
+                                            wrapperCol={{
+                                                span: 14,
+                                            }}
+                                            layout="horizontal"
+                                        >
+
+                                            <Form.Item label="Capacity ">
+                                                <Input
+                                                    value={capacity} placeholder="Enter Capacity"
+                                                    onChange={(e) => setCapacity(e.target.value)
+                                                    }
+                                                />
+                                            </Form.Item>
+
+                                            <Form.Item
+                                                wrapperCol={{
+                                                    offset: 8,
+                                                    span: 16,
+                                                }}
+                                            >
+                                                <Button type="primary" htmlType="submit" onClick={handleOkContact} style={{ backgroundColor: '#1A513B', border: 'none' }}>
+                                                    Save
+                                                </Button>
+                                            </Form.Item>
+
+
+                                        </Form>
+                                    </Modal>
+                                </Grid>
+                            </Grid>
+                        </Card>
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                        <Card title="Total Parking Space" size="small">
+                            {data.length}
+                        </Card>
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                        <Card title="Total Parked Cars" size="small">
+                            {data1.length}
+                        </Card>
+                    </Grid>
+                    <Grid item xs={12} md={12}>
+                        <Tabs defaultActiveKey="1" centered type="card">
+                            <Tabs.TabPane tab="Parking Space" key="1">
+                                <div className='tableResponsive'>
+                                    <Table columns={columns} dataSource={data} />
+                                </div>
                                 <Modal
-                                    title="Add Route"
-                                    visible={visibleAdd}
-                                    // onOk={handleOkAdd}
-                                    confirmLoading={confirmLoadingAdd}
-                                    onCancel={handleCancelAdd}
+                                    title="Car Parking Details"
+                                    visible={visibleView}
+                                    // onOk={handleOkView}
+                                    confirmLoading={confirmLoadingView}
+                                    onCancel={handleCancelView}
                                     footer={null}
                                 >
                                     <Form
@@ -473,120 +459,44 @@ function CarParkingSpace() {
                                         }}
                                         layout="horizontal"
                                     >
-                                        <Form.Item label="Starting ">
-                                            <Input value={discount} placeholder="Enter Starting Location"
-                                                onChange={(e) => setdiscount(e.target.value)
+                                        <Form.Item label="Comment ">
+                                            <Input value={commentEdit} disabled placeholder="Enter Location Name"
+                                                onChange={(e) => setcommentEdit(e.target.value)
                                                 } />
                                         </Form.Item>
-                                        <Form.Item label="Ending ">
-                                            <Input 
-                                            // value={discount}
-                                            //     onChange={(e) => setdiscount(e.target.value)
-                                            //     } 
-                                                placeholder="Enter Ending Location"/>
+                                        <Form.Item label="Plate No">
+                                            <Input value={plateNo} disabled placeholder="Enter Location Name"
+                                                onChange={(e) => setPlateNo(e.target.value)
+                                                } />
                                         </Form.Item>
-                                        <Form.Item label="Distance">
-                                            <Input 
-                                            // value={discount}
-                                            //     onChange={(e) => setdiscount(e.target.value)
-                                            //     } 
-                                                placeholder="Enter Distance"/>
-                                        </Form.Item>
-                                        <Form.Item label=" Walk Time">
-                                            <Input 
-                                            // value={discount}
-                                            //     onChange={(e) => setdiscount(e.target.value)
-                                            //     } 
-                                                placeholder="Enter Time of Walk"/>
-                                        </Form.Item>
-                                        <Form.Item
-        wrapperCol={{
-          offset: 8,
-          span: 16,
-        }}
-      >
-        <Button type="primary" htmlType="submit" onClick={handleOkAdd} style={{backgroundColor:'#1A513B',border:'none'}}>
-          Submit
-        </Button>
-      </Form.Item>
 
+                                        <Form.Item label="Location ">
+                                        </Form.Item>
+                                        <div>
+                                            <GoogleMap
+                                                id="map"
+                                                mapContainerStyle={mapContainerStyle}
+                                                zoom={15}
+                                                center={markers}
+                                                options={options}
+                                                onLoad={onMapLoad}
+                                            >
+                                                <Marker key="added" position={markers}
+                                                />
+                                            </GoogleMap>
+                                        </div>
                                     </Form>
                                 </Modal>
-
-                            </Item> */}
-                        </Box>
+                            </Tabs.TabPane>
+                            <Tabs.TabPane tab="Car Parked" key="2">
+                                <div className='tableResponsive'>
+                                    <Table columns={columns} dataSource={data1} />
+                                </div>
+                            </Tabs.TabPane>
+                        </Tabs>
 
                     </Grid>
-                    {/* <Grid item xs={12} md={12}>
-                        <div className='tableResponsive'>
-                            <Table columns={columns} dataSource={data} />
-                        </div>
-                        <Modal
-                            title="Route Details"
-                            visible={visibleView}
-                            // onOk={handleOkView}
-                            confirmLoading={confirmLoadingView}
-                            onCancel={handleCancelView}
-                            footer={null}
-                        >
-                             <Form
-                            labelCol={{
-                                span: 4,
-                            }}
-                            wrapperCol={{
-                                span: 14,
-                            }}
-                            layout="horizontal"
-                        // onValuesChange={onFormLayoutChange}
-                        // disabled={componentDisabled}
-                        > 
-
-                            <Grid container spacing={2}>
-                                <Grid item xs={12}>
-                                     <Image
-                                            width={200}
-                                            src={`${url}${Img}`}
-                                        /> 
-
-                                </Grid>
-                                <Grid item xs={6}>
-                                    <Typography >Starting Route :</Typography>
-
-                                </Grid>
-                                <Grid item xs={6}>
-                                    <Typography >some route</Typography>
-
-                                </Grid>
-                                <Grid item xs={6}>
-                                    <Typography >Ending Route :</Typography>
-
-                                </Grid>
-                                <Grid item xs={6}>
-                                    <Typography >some route</Typography>
-                                </Grid>
-                                <Grid item xs={6}>
-                                    <Typography >Distance :</Typography>
-
-                                </Grid>
-                                <Grid item xs={6}>
-                                    <Typography >12km</Typography>
-                                </Grid>                                <Grid item xs={6}>
-                                    <Typography >Walk Time :</Typography>
-
-                                </Grid>
-                                <Grid item xs={6}>
-                                    <Typography >12 min</Typography>
-                                </Grid>
-                            </Grid>
-                          
-
-                        </Modal>
-                    </Grid> */}
-
-
                 </Grid>
-
-
             </div>
         </div>
     )

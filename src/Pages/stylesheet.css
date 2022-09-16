@@ -19,6 +19,17 @@
     border:none
 
   }
+  .login-forget-password{
+    color:#1890ff;
+    cursor:pointer;
+    text-align: right;
+    margin-top: -15px;
+
+  }
+  .login-forget-password:hover{
+    color:blue;
+
+  }
   .login-form-button:hover{
     background-color: #dfdbce;
 
