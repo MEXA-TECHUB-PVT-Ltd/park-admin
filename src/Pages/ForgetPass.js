@@ -11,7 +11,6 @@ import { Button, Form, Input,message } from 'antd';
 import 'antd/dist/antd.css'
 import './stylesheet.css'
 import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import { Modal } from 'antd';
 
 const logoStyle = {
@@ -91,11 +90,11 @@ function ForgetPass() {
     'Content-Type': 'application/json'
   }
   const EmailVerify = () => {
-    axios.post(`${url}api/user/userForgetPassword`, {
+    axios.post(`${url}api/forgetPassword/userForgetPassword`, {
       email: email,
     }, { headers }).then(response => {
       console.log(response.data)
-      if (response.data.status === "pending") {
+      if (response.data.statusCode ===200) {
         message.success(response.data.message);
         setdisabledOtp(false)
         setOtpMatch(response.data.data.otp)
@@ -118,7 +117,7 @@ function ForgetPass() {
     setLoading1(true)
     setTimeout(() => {
       setLoading1(false)
-      axios.post(`${url}api/user/verifyOTP`, {
+      axios.post(`${url}api/forgetPassword/verifyOTP`, {
         userEnteredOtp: password,
         email: email
       }, { headers }).then(response => {
@@ -232,7 +231,7 @@ function ForgetPass() {
                   </Form.Item>
                   <Form.Item>
                     <Button type="primary" htmlType="submit" className="login-form-button" onClick={FinishData} disabled={disabledOtp}>
-                      {loading1 ? <ClipLoader color={color} loading={loading1} css={override} size={10} /> : <h5>
+                      {loading1 ? <ClipLoader color={colorBtn} loading={loading1} css={override} size={10} /> : <h5>
                         Verify</h5>}
                     </Button>
                     <a className="forgetPass" onClick={EmailVerify} disabled={disabledOtp}>Resend OTP</a>

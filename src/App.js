@@ -9,6 +9,7 @@ import {
 import ResponsiveDrawer from './Pages/ResponsiveDrawer';
 import Home from './Pages/Home';
 import ForgetPass from './Pages/ForgetPass';
+import UpdatePassword from './Pages/UpdatePassword';
 
 function App() {
   return (
@@ -26,6 +27,9 @@ function App() {
         </Routes>
         <Routes>
           <Route exact path="/forgetPass" element={<ForgetPass />}></Route>
+        </Routes>
+        <Routes>
+          <Route exact path="/updatePass" element={<UpdatePassword />}></Route>
         </Routes>
         </Router>
         </div>
