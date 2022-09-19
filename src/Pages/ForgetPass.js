@@ -100,7 +100,7 @@ function ForgetPass() {
         setOtpMatch(response.data.data.otp)
       } else {
         Modal.error({
-          title: 'Invalid Email',
+          title: 'Non Registered Email',
           content: 'Please Check your Email',
         });
       }
@@ -108,7 +108,7 @@ function ForgetPass() {
       .catch(err => {
         console.log(err)
         Modal.error({
-          title: 'Invalid Email',
+          title: 'Non Registered Email',
           content: 'Please Check your Email',
         });
       })
@@ -231,7 +231,7 @@ function ForgetPass() {
                   </Form.Item>
                   <Form.Item>
                     <Button type="primary" htmlType="submit" className="login-form-button" onClick={FinishData} disabled={disabledOtp}>
-                      {loading1 ? <ClipLoader color={colorBtn} loading={loading1} css={override} size={10} /> : <h5>
+                      {loading1 ? <ClipLoader color={colorBtn} loading={loading1} css={override} size={10} /> : <h5 style={{color:'white'}}>
                         Verify</h5>}
                     </Button>
                     <a className="forgetPass" onClick={EmailVerify} disabled={disabledOtp}>Resend OTP</a>

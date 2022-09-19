@@ -12,6 +12,8 @@ import axios from "axios";
 import Box from '@mui/material/Box';
 import '../tableStyle.css'
 import PetsIcon from '@mui/icons-material/Pets';
+import ClipLoader from "react-spinners/ClipLoader";
+
 
 import url from '../url'
 import PropTypes from 'prop-types';
@@ -48,7 +50,10 @@ const addbtn = {
     backgroundColor: '#1A513B',
     color: 'white',
 }
-
+const override = {
+    display: ' block',
+    margin: '0 auto',
+}
 function Item(props) {
     const { sx, ...other } = props;
     return (
@@ -347,49 +352,55 @@ function DogWalkTrack() {
         showDeleteConfirm(IdData)
     }
     // Add 
+    const [loading1, setLoading1] = useState(false);
+
     const [visibleAdd, setVisibleAdd] = useState(false);
     const [confirmLoadingAdd, setConfirmLoadingAdd] = useState(false);
 
     const handleOkAdd = () => {
-        if (markers === '' || distance === '') {
-            Modal.success({
-                content: 'Calculate Dog Walk Route  Then Continue',
-            });
-        } else {
-            axios.post(`${url}api/routes/createRoute`, {
-                routeTypeId: "62fcdb4ff201e720aef6a3a2",
-                pointA: {
-                    location: {
-                        coordinates: [markers.lat, markers.lng]
-                    }
-                }, pointB: {
-                    location: {
-                        coordinates: [markersB.lat, markersB.lng]
-                    }
-                },
-                distance: distance,
-                approxTime: duration
-
-            }, { headers }).then(response => {
-                console.log(response)
-                getAllData();
-                setViewMapRoutes(false);
-                setConfirmLoadingAdd(false);
+        setLoading1(true)
+        setTimeout(() => {
+            setLoading1(false)
+            if (markers === '' || distance === '') {
                 Modal.success({
-                    content: 'Created Dog Walk Route Successfully',
+                    content: 'Calculate Dog Walk Route Then Continue',
                 });
-                setDirectionsResponse(null)
-                setDistance('')
-                setDuration('')
-                setAPlace('')
-                setBPlace('')
-                // setLocationIdType('')
+            } else {
+                axios.post(`${url}api/routes/createRoute`, {
+                    routeTypeId: "62fcdb4ff201e720aef6a3a2",
+                    pointA: {
+                        location: {
+                            coordinates: [markers.lat, markers.lng]
+                        }
+                    }, pointB: {
+                        location: {
+                            coordinates: [markersB.lat, markersB.lng]
+                        }
+                    },
+                    distance: distance,
+                    approxTime: duration
 
-            })
-                .catch(err => {
-                    console.log(err)
+                }, { headers }).then(response => {
+                    console.log(response)
+                    getAllData();
+                    setViewMapRoutes(false);
+                    setConfirmLoadingAdd(false);
+                    Modal.success({
+                        content: 'Created Dog Walk Route Successfully',
+                    });
+                    setDirectionsResponse(null)
+                    setDistance('')
+                    setDuration('')
+                    setAPlace('')
+                    setBPlace('')
+                    // setLocationIdType('')
+
                 })
-        }
+                    .catch(err => {
+                        console.log(err)
+                    })
+            }
+        }, 3000)
     };
     // View Map 
     const [viewMapRoutes, setViewMapRoutes] = useState(false);
@@ -728,9 +739,13 @@ function DogWalkTrack() {
                                                 <Button onClick={clearRoute}>Clear Route</Button>
                                                 <Button onClick={calculateRoute} style={{ backgroundColor: 'blue', color: 'white' }}>Calculate Route</Button>
                                                 <Button onClick={() => map.panTo(center)} style={{ backgroundColor: 'orange', color: 'white' }}>Back to Center</Button>
-                                                <Button style={{ backgroundColor: '#1a513b', color: 'white' }} onClick={handleOkAdd}>Save</Button>
+                                                <Button style={{ backgroundColor: '#1a513b', color: 'white' }} onClick={handleOkAdd}> {loading1 ? <ClipLoader color='white' loading={loading1} css={override} size={10} /> : <h5 style={{ color: 'white', marginTop: '-20px' }}>
+                                                    Save</h5>}</Button>
 
 
+                                            </Grid>
+                                            <Grid item xs={12} md={12}>
+                                                <span style={{ fontWeight: '700' }}> Drag and Drop to adjust Route</span>
                                             </Grid>
 
                                             <Grid item xs={12} md={12}>

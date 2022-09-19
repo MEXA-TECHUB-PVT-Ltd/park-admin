@@ -19,6 +19,12 @@
     border:none
 
   }
+  .email-Verify{
+    font-size: 30px;
+    margin-top: 10px;
+    color: #1A513B;
+    cursor: pointer;
+  }
   .login-forget-password{
     color:#1890ff;
     cursor:pointer;

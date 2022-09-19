@@ -14,6 +14,7 @@ import WcIcon from '@mui/icons-material/Wc';
 import Box from '@mui/material/Box';
 import '../tableStyle.css'
 import url from '../url'
+import ClipLoader from "react-spinners/ClipLoader";
 import PropTypes from 'prop-types';
 import {
     GoogleMap,
@@ -51,6 +52,10 @@ const addbtn = {
     backgroundColor: '#1A513B',
     color: 'white',
 }
+const override = {
+    display: ' block',
+    margin: '0 auto',
+  }
 
 function Item(props) {
     const { sx, ...other } = props;
@@ -84,6 +89,8 @@ Item.propTypes = {
 };
 function Toilets() {
     //Get API Axios
+  const [loading1, setLoading1] = useState(false);
+
     const [data, setData] = useState([]);
 
 
@@ -114,6 +121,12 @@ function Toilets() {
     useEffect(() => {
         getAllData();
         getAllData1();
+        setMarkers(
+            {
+                lat: 43.6532,
+                lng: -79.3832,
+            }
+        )
 
     }, []);
     const [LocationIdType, setLocationIdType] = React.useState('');
@@ -284,7 +297,7 @@ function Toilets() {
                             // showModalAdd
                         }}
                     ><EditTwoTone style={iconFont} twoToneColor="green" /></a>
-       
+
 
                 </Space>
 
@@ -376,40 +389,50 @@ function Toilets() {
     const [LngMark, setLngMark] = useState(false);
 
     const handleOkAdd = () => {
-        setLatMark(markers.lat)
-        setLngMark(markers.lng)
-        if (markers === '' || LocationIdType === '' || nameLocation === '') {
-            console.log(markers)
-            console.log(LocationIdType)
-            console.log(nameLocation)
-            console.log('fill all fields')
-        } else {
-            // POst Request Create Toilet
-            console.log(LocationIdType)
-
-            axios.post(`${url}api/toilet/createToilet`, {
-                name: nameLocation,
-                location: {
-                    coordinates: [LatMark, LngMark]
-                },
-                locationTypeId: LocationIdType
-
-            }, { headers }).then(response => {
-                console.log(response)
-                getAllData();
-                setVisibleAdd(false);
-                setConfirmLoadingAdd(false);
-                Modal.success({
-                    content: 'Created Toilet Successfully',
-                });
-                setLocationIdType('')
-                setnameLocation('')
-
-            })
-                .catch(err => {
-                    console.log(err)
-                })
-        }
+        setLoading1(true)
+        setTimeout(() => {
+          setLoading1(false)
+          setLatMark(markers.lat)
+          setLngMark(markers.lng)
+          if (markers === '' || LocationIdType === '' || nameLocation === '') {
+              console.log(markers)
+              console.log(LocationIdType)
+              console.log(nameLocation)
+              console.log('fill all fields')
+              Modal.error({
+                  title: 'This is an error message',
+                  content: 'Please Fill All Fields!',
+              });
+          } else {
+              // POst Request Create Toilet
+              console.log(LocationIdType)
+              
+  
+              axios.post(`${url}api/toilet/createToilet`, {
+                  name: nameLocation,
+                  location: {
+                      coordinates: [LatMark, LngMark]
+                  },
+                  locationTypeId: LocationIdType
+  
+              }, { headers }).then(response => {
+                  console.log(response)
+                  getAllData();
+                  setVisibleAdd(false);
+                  setConfirmLoadingAdd(false);
+                  Modal.success({
+                      content: 'Created Toilet Successfully',
+                  });
+                  setLocationIdType('')
+                  setnameLocation('')
+  
+              })
+                  .catch(err => {
+                      console.log(err)
+                  })
+          }
+        }, 3000)
+       
     };
     const handleOkUpdate = () => {
         console.log(LocationIdType)
@@ -543,7 +566,8 @@ function Toilets() {
                                             >
                                                 <Marker key="added" position={{ lat: markers.lat, lng: markers.lng }}
 
-                                                />
+                                                /> 
+
                                             </GoogleMap>
                                         </div>
 
@@ -570,8 +594,10 @@ function Toilets() {
                                             }}
                                         >
                                             <Button type="primary" htmlType="submit" onClick={handleOkAdd} style={{ backgroundColor: '#1A513B', border: 'none' }}>
-                                                Submit
+                                            {loading1 ? <ClipLoader color='white' loading={loading1} css={override} size={10} /> : <h5 style={{color:'white'}}>
+                        Save</h5>}
                                             </Button>
+                                        
                                         </Form.Item>
 
                                     </Form>
@@ -635,7 +661,7 @@ function Toilets() {
                                 <Form.Item label="Type" style={{ marginTop: '20px' }}
                                 >
 
-                                   
+
                                     <Select
                                         defaultValue=""
                                         disabled
