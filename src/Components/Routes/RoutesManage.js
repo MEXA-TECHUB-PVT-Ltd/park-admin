@@ -45,7 +45,8 @@ const marginTop = {
 }
 const addbtn = {
     height: '50px',
-    borderRadius: '20px',
+    cursor:'pointer',
+    // borderRadius: '20px',
     backgroundColor: '#1A513B',
     color: 'white',
 }

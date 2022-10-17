@@ -2,7 +2,7 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import HomeIcon from '@mui/icons-material/Home';
 import { SearchOutlined, DeleteTwoTone, ExclamationCircleOutlined, EditTwoTone } from '@ant-design/icons';
-import { Button, Input, Space, Table, Form, Select }
+import { Button, Input, Space, Table, Form, Select ,Image }
     from 'antd';
 import React, { useRef, useState, useEffect } from 'react';
 import Highlighter from 'react-highlight-words';
@@ -14,7 +14,6 @@ import WcIcon from '@mui/icons-material/Wc';
 import Box from '@mui/material/Box';
 import '../tableStyle.css'
 import AltRouteIcon from '@mui/icons-material/AltRoute';
-
 import url from '../url'
 import PropTypes from 'prop-types';
 import {
@@ -100,11 +99,13 @@ function RoutesTable() {
 
     }
     const getAllData = () => {
-        axios.get(`${url}api/routes/getRoutes`)
+        axios.get(`${url}api/location/getAllLocationWithOnePic`)
             .then((response) => {
-                const allData = response.data.result;
+                const allData = response.data.data;
+                console.log("allData");
                 console.log(allData);
-                setData(response.data.result);
+
+                setData(response.data.data);
                 setLoading(true)
             })
             .catch(error => console.error(`Error:${error}`));
@@ -148,49 +149,73 @@ function RoutesTable() {
         console.info('You clicked a breadcrumb.');
     }
     const columns = [
-        // {
-        //     title: 'Name',
-        //     width: '20%',
-        //     key: 'locationName',
-        //     render: (_, record) => (
-        //         <Space size="middle">
-        //             {record.name}
-        //         </Space>
-        //     ),
-        // },
         {
-            title: 'Route Type',
+            title: 'Image',
             width: '20%',
-            key: 'routeType',
+            key: 'title',
             render: (_, record) => (
                 <Space size="middle">
-                    {record.routeTypeId.routeType}
+                     <Image
+    width={100}
+    src={record.images[0]}
+  />
+                    {/* {record.images.image_url} */}
                 </Space>
-
             ),
         },
+        {
+            title: 'Title',
+            width: '20%',
+            key: 'title',
+            render: (_, record) => (
+                <Space size="middle">
+                    {record.title}
+                </Space>
+            ),
+        },
+        {
+            title: 'Description',
+            width: '20%',
+            key: 'description',
+            render: (_, record) => (
+                <Space size="middle">
+                    {record.description}
+                </Space>
+            ),
+        },
+        {
+            title: 'Average Time',
+            width: '20%',
+            key: 'avg_time',
+            render: (_, record) => (
+                <Space size="middle">
+                    {record.avg_time}
+                </Space>
+            ),
+        },
+        // {
+        //     title: 'Route Type',
+        //     width: '20%',
+        //     key: 'routeType',
+        //     render: (_, record) => (
+        //         <Space size="middle">
+        //             {record.routeTypeId.routeType}
+        //         </Space>
+
+        //     ),
+        // },
         {
             title: 'Origin Coordinates',
             width: '20%',
             key: 'routeType',
             render: (_, record) => (
                 <Space size="middle">
-                    {record.pointA.location.coordinates}
+                    {record.location.coordinates}
                 </Space>
 
             ),
         },
-        {
-            title: 'Destination Coordinates',
-            width: '20%',
-            key: 'routeType',
-            render: (_, record) => (
-                <Space size="middle">
-                    {record.pointB.location.coordinates}
-                </Space>
-
-            ),
-        },
+        
         {
             title: 'Distance',
             width: '20%',
@@ -218,7 +243,7 @@ function RoutesTable() {
                     <a
                         onClick={() => {
                             // console.log(row._id)
-                            onToggleView(record._id, record.routeTypeId._id, record.approxTime, record.distance, record.pointA.location.coordinates, record.pointB.location.coordinates)
+                            onToggleView(record._id)
                             // showModalAdd
                         }}
                     ><EditTwoTone style={iconFont} twoToneColor="green" /></a>
@@ -260,56 +285,68 @@ function RoutesTable() {
         setpointBEdit('')
     };
     const [editId, setEditId] = React.useState('')
-    const onToggleView = async (id, routeType, time, distance, pointA, pointB) => {
+    const onToggleView = async (id) => {
+console.log(id)
+  await axios.get(`${url}api/location/getLocationById/${id}`
+  , { headers }).then(response => {
+            console.log('response')
+                console.log(response.data.data);
 
-        axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${pointA[0]},${pointA[1]}&sensor=true&key=AIzaSyAYEkl4Du9zEcm1X2u1HEepM8DAuk9dYUk`)
-            .then((response) => {
-                const allData = response.data.results[0];
-                console.log(allData);
-                setMarkers(
-                    {
-                        lat: response.data.results[0].geometry.location.lat,
-                        lng: response.data.results[0].geometry.location.lng
-                    }
-                )
-                setpointAEdit(response.data.results[0].formatted_address)
-                // Second API 
-                axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${pointB[0]},${pointB[1]}&sensor=true&key=AIzaSyAYEkl4Du9zEcm1X2u1HEepM8DAuk9dYUk`)
-                    .then((response) => {
-                        const allData = response.data.results[0];
-                        console.log(allData);
-                        setMarkersB(
-                            {
-                                lat: response.data.results[0].geometry.location.lat,
-                                lng: response.data.results[0].geometry.location.lng
-                            }
-                        )
-                        setpointBEdit(response.data.results[0].formatted_address)
-                        // Other 
-                        setEditId(id)
-                        setapproxTimeEdit(time);
-                        setrouteTypeEdit(routeType)
-                        setdistanceCalculated(distance)
-                        setmodeTravel("WALKING")
+           
+        
 
-
-
-                    })
-                    .catch(error => console.error(`Error:${error}`));
-
-            })
-            .catch(error => console.error(`Error:${error}`));
-
-        //eslint-disable-next-line no-undef
-        const directionsService = new google.maps.DirectionsService()
-        const results = await directionsService.route({
-            origin: pointAEdit,
-            destination: pointBEdit,
-            //eslint-disable-next-line no-undef
-            travelMode: google.maps.TravelMode[modeTravel]
         })
-        setDirectionsResponse(results)
-        setVisibleView(true);
+            .catch(err => {
+                console.log(err)
+            })
+        // axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${pointA[0]},${pointA[1]}&sensor=true&key=AIzaSyAYEkl4Du9zEcm1X2u1HEepM8DAuk9dYUk`)
+        //     .then((response) => {
+        //         const allData = response.data.results[0];
+        //         console.log(allData);
+        //         setMarkers(
+        //             {
+        //                 lat: response.data.results[0].geometry.location.lat,
+        //                 lng: response.data.results[0].geometry.location.lng
+        //             }
+        //         )
+        //         setpointAEdit(response.data.results[0].formatted_address)
+        //         // Second API 
+        //         axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${pointB[0]},${pointB[1]}&sensor=true&key=AIzaSyAYEkl4Du9zEcm1X2u1HEepM8DAuk9dYUk`)
+        //             .then((response) => {
+        //                 const allData = response.data.results[0];
+        //                 console.log(allData);
+        //                 setMarkersB(
+        //                     {
+        //                         lat: response.data.results[0].geometry.location.lat,
+        //                         lng: response.data.results[0].geometry.location.lng
+        //                     }
+        //                 )
+        //                 setpointBEdit(response.data.results[0].formatted_address)
+        //                 // Other 
+        //                 setEditId(id)
+        //                 setapproxTimeEdit(time);
+        //                 setrouteTypeEdit(routeType)
+        //                 setdistanceCalculated(distance)
+        //                 setmodeTravel("WALKING")
+
+
+
+        //             })
+        //             .catch(error => console.error(`Error:${error}`));
+
+        //     })
+        //     .catch(error => console.error(`Error:${error}`));
+
+        // //eslint-disable-next-line no-undef
+        // const directionsService = new google.maps.DirectionsService()
+        // const results = await directionsService.route({
+        //     origin: pointAEdit,
+        //     destination: pointBEdit,
+        //     //eslint-disable-next-line no-undef
+        //     travelMode: google.maps.TravelMode[modeTravel]
+        // })
+        // setDirectionsResponse(results)
+        // setVisibleView(true);
 
 
     }
@@ -319,25 +356,33 @@ function RoutesTable() {
     // Delete 
     const showDeleteConfirm = (IdData) => {
         confirm({
-            title: 'Are you sure delete this Route?',
+            title: 'Are you sure delete this Location?',
             icon: <ExclamationCircleOutlined />,
             okText: 'Yes',
             okType: 'danger',
             cancelText: 'No',
             onOk() {
                 // Api 
-                axios.delete(`${url}api/routes/deleteRoute/${IdData}`, { headers })
+                axios.delete(`${url}api/location/deleteLocation/${IdData}`, { headers })
                     .then(res => {
                         console.log(res);
-                        console.log(res.data);
+                        console.log(res.data.message);
                         getAllData();
+                        if(res.data.message==="deleted successfully"){
+                            Modal.success({
+                                content: 'Location Deleted Successfully',
+                            });
+                        }else{
+                            Modal.error({
+                                title: 'This is an error message',
+                                content: 'There is some error ,Unable to delete data',
+                              });
+                        }
                     }).catch(err => {
                         console.log(err)
                     })
                 console.log('OK');
-                Modal.success({
-                    content: 'Route Deleted Successfully',
-                });
+                
             },
             onCancel() {
                 console.log('Cancel');

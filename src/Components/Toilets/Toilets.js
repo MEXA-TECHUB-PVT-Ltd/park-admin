@@ -1,8 +1,8 @@
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import HomeIcon from '@mui/icons-material/Home';
-import { SearchOutlined, DeleteTwoTone, ExclamationCircleOutlined, EditTwoTone } from '@ant-design/icons';
-import { Button, Input, Space, Table, Form, Select }
+import { SearchOutlined, DeleteTwoTone, ExclamationCircleOutlined, EditTwoTone, PlusOutlined } from '@ant-design/icons';
+import { Button, Input, Space, Table, Form, Select, Upload, Image }
     from 'antd';
 import React, { useRef, useState, useEffect } from 'react';
 import Highlighter from 'react-highlight-words';
@@ -14,6 +14,7 @@ import WcIcon from '@mui/icons-material/Wc';
 import Box from '@mui/material/Box';
 import '../tableStyle.css'
 import url from '../url'
+import googleMapsApiKey from '../mapKey'
 import ClipLoader from "react-spinners/ClipLoader";
 import PropTypes from 'prop-types';
 import {
@@ -48,14 +49,15 @@ const marginTop = {
 }
 const addbtn = {
     height: '50px',
-    borderRadius: '20px',
+    cursor: 'pointer',
+    // borderRadius: '20px',
     backgroundColor: '#1A513B',
     color: 'white',
 }
 const override = {
     display: ' block',
     margin: '0 auto',
-  }
+}
 
 function Item(props) {
     const { sx, ...other } = props;
@@ -89,30 +91,30 @@ Item.propTypes = {
 };
 function Toilets() {
     //Get API Axios
-  const [loading1, setLoading1] = useState(false);
+    const [loading1, setLoading1] = useState(false);
 
     const [data, setData] = useState([]);
 
 
     const [loading, setLoading] = useState(false);
-    const getAllData1 = () => {
-        axios.get(`${url}api/locationType/getAllLocationTypes`)
-            .then((response) => {
-                console.log("response.data");
-                console.log(response.data.data);
+    // const getAllData1 = () => {
+    //     axios.get(`${url}api/locationType/getAllLocationTypes`)
+    //         .then((response) => {
+    //             console.log("response.data");
+    //             console.log(response.data.data);
 
-                setDataLocationType(response.data.data);
-                // setLoading(true)
-            })
-            .catch(error => console.error(`Error:${error}`));
+    //             setDataLocationType(response.data.data);
+    //             // setLoading(true)
+    //         })
+    //         .catch(error => console.error(`Error:${error}`));
 
-    }
+    // }
     const getAllData = () => {
-        axios.get(`${url}api/toilet/getToilets`)
+        axios.get(`${url}api/location/getLocationByTypeWithOnePic/?type=toilet`)
             .then((response) => {
                 const allData = response.data;
                 console.log(allData);
-                setData(response.data.data);
+                setData(response.data.result);
                 setLoading(true)
             })
             .catch(error => console.error(`Error:${error}`));
@@ -120,7 +122,6 @@ function Toilets() {
     }
     useEffect(() => {
         getAllData();
-        getAllData1();
         setMarkers(
             {
                 lat: 43.6532,
@@ -249,12 +250,26 @@ function Toilets() {
 
     const columns = [
         {
-            title: 'Name',
+            title: 'Image',
             width: '20%',
-            key: 'locationName',
+            key: 'title',
             render: (_, record) => (
                 <Space size="middle">
-                    {record.name}
+                    <Image
+                        width={100}
+                        src={record.images[0]}
+                    />
+                    {/* {record.images.image_url} */}
+                </Space>
+            ),
+        },
+        {
+            title: 'Title',
+            width: '20%',
+            key: 'title',
+            render: (_, record) => (
+                <Space size="middle">
+                    {record.title}
                 </Space>
             ),
         },
@@ -269,12 +284,22 @@ function Toilets() {
             ),
         },
         {
-            title: 'Location Type',
+            title: 'Distance',
             width: '20%',
-            key: 'locationType',
+            key: 'distance',
             render: (_, record) => (
                 <Space size="middle">
-                    {record.locationType.locationType}
+                    {record.distance}
+                </Space>
+            ),
+        },
+        {
+            title: 'Avg Time',
+            width: '20%',
+            key: 'avg_time',
+            render: (_, record) => (
+                <Space size="middle">
+                    {record.avg_time}
                 </Space>
             ),
         },
@@ -293,7 +318,7 @@ function Toilets() {
                     <a
                         onClick={() => {
                             // console.log(row._id)
-                            onToggleView(record._id, record.name, record.location.coordinates, record.locationType.locationType)
+                            onToggleView(record._id, record.location.coordinates)
                             // showModalAdd
                         }}
                     ><EditTwoTone style={iconFont} twoToneColor="green" /></a>
@@ -327,21 +352,33 @@ function Toilets() {
         setVisibleView(false);
     };
     const [editId, setEditId] = React.useState('')
-    const onToggleView = async (id, name, coordinates, locationType) => {
-        setEditId(id)
-        console.log(id);
-        console.log(name);
-        console.log(coordinates[0]);
-        console.log(locationType);
-        setnameLocationEdit(name);
+    const onToggleView = async (id, coordinates) => {
         setMarkers(
             {
                 lat: coordinates[0],
                 lng: coordinates[1]
             }
         );
-        setLocationIdTypeEdit(locationType);
-        setVisibleView(true);
+        await axios.get(`${url}api/location/getLocationById/${id}`
+            , { headers }).then(response => {
+                console.log('response')
+                console.log(response.data)
+
+                console.log(coordinates[0]);
+                setEditId(response.data.data._id)
+                setnameLocationEdit(response.data.data.title);
+                setDistanceEdit(response.data.data.distance)
+                setavg_timeEdit(response.data.data.avg_time)
+                setdescriptionEdit(response.data.data.description)
+                setVisibleView(true);
+
+
+            })
+            .catch(err => {
+                console.log(err)
+            })
+
+        // setVisibleView(true);
     }
     const headers = {
         'Content-Type': 'application/json'
@@ -357,7 +394,7 @@ function Toilets() {
 
             onOk() {
                 // Api 
-                axios.delete(`${url}api/toilet/removeToilet/${IdData}`, { headers })
+                axios.delete(`${url}api/location/deleteLocation/${IdData}`, { headers })
                     .then(res => {
                         console.log(res);
                         console.log(res.data);
@@ -391,56 +428,107 @@ function Toilets() {
     const handleOkAdd = () => {
         setLoading1(true)
         setTimeout(() => {
-          setLoading1(false)
-          setLatMark(markers.lat)
-          setLngMark(markers.lng)
-          if (markers === '' || LocationIdType === '' || nameLocation === '') {
-              console.log(markers)
-              console.log(LocationIdType)
-              console.log(nameLocation)
-              console.log('fill all fields')
-              Modal.error({
-                  title: 'This is an error message',
-                  content: 'Please Fill All Fields!',
-              });
-          } else {
-              // POst Request Create Toilet
-              console.log(LocationIdType)
-              
-  
-              axios.post(`${url}api/toilet/createToilet`, {
-                  name: nameLocation,
-                  location: {
-                      coordinates: [LatMark, LngMark]
-                  },
-                  locationTypeId: LocationIdType
-  
-              }, { headers }).then(response => {
-                  console.log(response)
-                  getAllData();
-                  setVisibleAdd(false);
-                  setConfirmLoadingAdd(false);
-                  Modal.success({
-                      content: 'Created Toilet Successfully',
-                  });
-                  setLocationIdType('')
-                  setnameLocation('')
-  
+            setLoading1(false)
+            console.log(markers.lat)
+            console.log(markers.lng)
+            console.log(markers.lng)
+            console.log(images)
+            console.log(nameLocation)
+            console.log(description)
+            console.log(distance)
+            console.log(avg_time)
+            setLatMark(markers.lat)
+            setLngMark(markers.lng)
+          
+            var dataA = new FormData();
+            dataA.append('type', 'toilet');
+            dataA.append('location', { "coordinates": [markers.lat, markers.lng] });
+            dataA.append('images', {images});
+            dataA.append('title', nameLocation);
+            dataA.append('description', description);
+            dataA.append('distance', distance);
+            dataA.append('avg_time', avg_time);
+           
+              axios
+              .post(`${url}api/location/createLocation`, dataA, {
+                headers: {
+                  "Content-Type": "multipart/form-data",
+                },
               })
-                  .catch(err => {
-                      console.log(err)
-                  })
-          }
+              .then((res) => {
+                console.log(res);
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+                // axios.post(`${url}api/location/createLocation`, {config},
+                //  ).then(response => {
+                //     console.log(response)
+                //     getAllData();
+                //     // setVisibleAdd(false);
+                //     // setConfirmLoadingAdd(false);
+                //     // Modal.success({
+                //     //     content: 'Created Toilet Successfully',
+                //     // });
+                //     // setLocationIdType('')
+                //     // setnameLocation('')
+
+                // })
+                // .catch(err => {
+                //     console.log(err)
+                // })
+            //   axios.post(`${url}api/location/createLocation`, {
+            //   },config
+            //   .then(response => {
+            //     console.log(JSON.stringify(response.data));
+            //   })
+            //   .catch(err => {
+            //         console.log(err)
+            //     });
+                // axios.post(`${url}api/location/createLocation`, {
+                //     type: "toilet",
+                //     location: {
+                //         coordinates: [LatMark, LngMark]
+                //     },
+                //     title: nameLocation,
+                //     images: images,
+                //     description: description,
+                //     distance: distance,
+                //     avg_time: avg_time
+
+                // }, {  'Content-Type': `multipart/form-data` }).then(response => {
+                //     console.log(response.data)
+                //     getAllData();
+                //     // setVisibleAdd(false);
+                //     // setConfirmLoadingAdd(false);
+                //     // Modal.success({
+                //     //     content: 'Created Toilet Successfully',
+                //     // });
+                //     // setLocationIdType('')
+                //     // setnameLocation('')
+
+                // })
+                // .catch(err => {
+                //     console.log(err)
+                // })
+            // }
         }, 3000)
-       
+
     };
     const handleOkUpdate = () => {
-        console.log(LocationIdType)
-        axios.put(`${url}api/toilet/updateToiletDetails`, {
-            toiletId: editId,
-            name: nameLocationEdit,
+        console.log(imagesEdit)
+        console.log(editId)
+        axios.put(`${url}api/location/updateLocation`, {
+            location_id: editId,
+            type: "toilet",
+            title: nameLocationEdit,
+            // location: { coordinates: [markers.lat, markers.lng] },
             long: markers.lat,
-            lat: markers.lng
+            lat: markers.lng,
+            images: imagesEdit,
+            description: descriptionEdit,
+            distance: distanceEdit,
+            avg_time: avg_timeEdit
 
         }, { headers }).then(response => {
             console.log(response)
@@ -462,14 +550,24 @@ function Toilets() {
         console.log('Clicked cancel button');
         setVisibleAdd(false);
     };
-    const [dataLocationType, setDataLocationType] = useState([]);
     const [nameLocation, setnameLocation] = useState('');
-    const [nameLocationEdit, setnameLocationEdit] = useState('');
+    const [distance, setDistance] = useState('');
+    const [description, setdescription] = useState('');
+    const [avg_time, setavg_time] = useState('');
 
+
+    const [nameLocationEdit, setnameLocationEdit] = useState('');
+    const [imagesEdit, setImagesEdit] = useState([]);
+    const [images, setImages] = useState([]);
+
+
+    const [distanceEdit, setDistanceEdit] = useState('');
+    const [avg_timeEdit, setavg_timeEdit] = useState('');
+    const [descriptionEdit, setdescriptionEdit] = useState('');
 
     // Google Map 
     const { isLoaded, loadError } = useLoadScript({
-        googleMapsApiKey: "AIzaSyAYEkl4Du9zEcm1X2u1HEepM8DAuk9dYUk",
+        googleMapsApiKey: googleMapsApiKey,
         libraries,
     });
     const [markers, setMarkers] = React.useState([]);
@@ -480,6 +578,14 @@ function Toilets() {
 
     if (loadError) return "Error";
     if (!isLoaded) return "Loading...";
+    const FileUploadImages = (e) => {
+        console.log(e)
+        setImagesEdit(e.fileList)
+    }
+    const handleImage = (e) => {
+        console.log(e.target.files)
+        setImages(e.target.files)
+    }
     return (
         <div >
             <div role="presentation">
@@ -536,7 +642,7 @@ function Toilets() {
                                         layout="horizontal"
                                     >
 
-                                        <Form.Item label="Name ">
+                                        {/* <Form.Item label="Name ">
                                             <Input value={nameLocation} placeholder="Enter Location Name"
                                                 onChange={(e) => setnameLocation(e.target.value)
                                                 } />
@@ -566,7 +672,7 @@ function Toilets() {
                                             >
                                                 <Marker key="added" position={{ lat: markers.lat, lng: markers.lng }}
 
-                                                /> 
+                                                />
 
                                             </GoogleMap>
                                         </div>
@@ -585,6 +691,71 @@ function Toilets() {
                                                 ))}
                                             </Select>
 
+                                        </Form.Item> */}
+                                        <input type="file" multiple name="image" placeholder="image"
+                                            onChange={(e) => handleImage(e)} />
+                                        {/* <Form.Item label="Images" valuePropName="fileList">
+          <Upload listType="picture-card" value={imagesEdit}  onChange={(e) => FileUploadImages(e)
+                                        }>
+            <div>
+              <PlusOutlined />
+              <div
+                style={{
+                  marginTop: 8,
+                }}
+              >
+                Upload
+              </div>
+            </div>
+          </Upload>
+        </Form.Item> */}
+                                        <Form.Item label="Title ">
+                                            <Input value={nameLocation} placeholder="Enter Location Name"
+                                                onChange={(e) => setnameLocation(e.target.value)
+                                                } />
+                                        </Form.Item>
+                                        <Form.Item label="Location">
+                                        </Form.Item>
+
+                                        <div>
+                                            <GoogleMap
+                                                id="map"
+                                                mapContainerStyle={mapContainerStyle}
+                                                zoom={15}
+                                                center={center}
+                                                options={options}
+                                                onClick={(e) => {
+                                                    setMarkers(
+                                                        {
+                                                            lat: e.latLng.lat(),
+                                                            lng: e.latLng.lng()
+                                                        }
+                                                    )
+
+                                                }}
+                                                onLoad={onMapLoad}
+                                            >
+                                                <Marker key="added" position={{ lat: markers.lat, lng: markers.lng }}
+
+                                                />
+
+                                            </GoogleMap>
+                                        </div>
+                                        <h5 style={{ margin: '20px' }}>Click on map to edit location</h5>
+                                        <Form.Item label="Description ">
+                                            <Input value={description} placeholder="Enter Description"
+                                                onChange={(e) => setdescription(e.target.value)
+                                                } />
+                                        </Form.Item>
+                                        <Form.Item label="Distance ">
+                                            <Input value={distance} placeholder="Enter Distance"
+                                                onChange={(e) => setDistance(e.target.value)
+                                                } />
+                                        </Form.Item>
+                                        <Form.Item label="Avg Time ">
+                                            <Input value={avg_time} placeholder="Enter Average Time"
+                                                onChange={(e) => setavg_time(e.target.value)
+                                                } />
                                         </Form.Item>
 
                                         <Form.Item
@@ -594,10 +765,10 @@ function Toilets() {
                                             }}
                                         >
                                             <Button type="primary" htmlType="submit" onClick={handleOkAdd} style={{ backgroundColor: '#1A513B', border: 'none' }}>
-                                            {loading1 ? <ClipLoader color='white' loading={loading1} css={override} size={10} /> : <h5 style={{color:'white'}}>
-                        Save</h5>}
+                                                {loading1 ? <ClipLoader color='white' loading={loading1} css={override} size={10} /> : <h5 style={{ color: 'white' }}>
+                                                    Save</h5>}
                                             </Button>
-                                        
+
                                         </Form.Item>
 
                                     </Form>
@@ -628,13 +799,31 @@ function Toilets() {
                                 }}
                                 layout="horizontal"
                             >
-                                <Form.Item label="Name ">
+                                <input type="file" multiple name="image" placeholder="image"
+                                    onChange={(e) => setImagesEdit(e.target.files)} />
+                                {/* <Form.Item label="Images" valuePropName="fileList">
+          <Upload listType="picture-card" value={imagesEdit}  onChange={(e) => FileUploadImages(e)
+                                        }>
+            <div>
+              <PlusOutlined />
+              <div
+                style={{
+                  marginTop: 8,
+                }}
+              >
+                Upload
+              </div>
+            </div>
+          </Upload>
+        </Form.Item> */}
+                                <Form.Item label="Title ">
                                     <Input value={nameLocationEdit} placeholder="Enter Location Name"
                                         onChange={(e) => setnameLocationEdit(e.target.value)
                                         } />
                                 </Form.Item>
-                                <Form.Item label="Location ">
+                                <Form.Item label="Location">
                                 </Form.Item>
+
                                 <div>
                                     <GoogleMap
                                         id="map"
@@ -658,26 +847,21 @@ function Toilets() {
                                         />
                                     </GoogleMap>
                                 </div>
-                                <Form.Item label="Type" style={{ marginTop: '20px' }}
-                                >
-
-
-                                    <Select
-                                        defaultValue=""
-                                        disabled
-                                        value={LocationIdTypeEdit}
-                                        onChange={
-                                            (e) => console.log(e)
-                                            // setLocationIdTypeEdit(e)
-                                        }
-                                    >
-                                        <Option value=''>Select Location Type</Option>
-
-                                        {dataLocationType.map((row) => (
-                                            <Option value={row._id}>{row.locationType}</Option>
-                                        ))}
-                                    </Select>
-
+                                <h5 style={{ margin: '20px' }}>Click on map to edit location</h5>
+                                <Form.Item label="Description ">
+                                    <Input value={descriptionEdit} placeholder="Enter Description"
+                                        onChange={(e) => setdescriptionEdit(e.target.value)
+                                        } />
+                                </Form.Item>
+                                <Form.Item label="Distance ">
+                                    <Input value={distanceEdit} placeholder="Enter Distance"
+                                        onChange={(e) => setDistanceEdit(e.target.value)
+                                        } />
+                                </Form.Item>
+                                <Form.Item label="Avg Time ">
+                                    <Input value={avg_timeEdit} placeholder="Enter Average Time"
+                                        onChange={(e) => setavg_timeEdit(e.target.value)
+                                        } />
                                 </Form.Item>
 
                                 <Form.Item

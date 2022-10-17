@@ -3,15 +3,10 @@ import { Grid } from '@mui/material'
 import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import { makeStyles } from '@material-ui/core/styles'
-import { Avatar } from '@mui/material';
-import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import PetsIcon from '@mui/icons-material/Pets';
 import GroupIcon from '@mui/icons-material/Group';
-import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
-import UpdateIcon from '@mui/icons-material/Update';
-import { MedicineBoxOutlined,LikeOutlined ,TableOutlined  } from '@ant-design/icons'
-
+import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
+import WcIcon from '@mui/icons-material/Wc';
 import axios from 'axios';
 import url from '../url'
 import '../tableStyle.css'
@@ -74,9 +69,6 @@ const useStyles = makeStyles({
         fontSize: '16px',
         marginTop: '-15px',
         paddingLeft: "20px",
-
-        // padding: '10px',
-        // display: 'flex'
     }, remarksImg: {
         padding: "20px",
         alignContent: 'center'
@@ -92,15 +84,6 @@ const useStyles = makeStyles({
         fontSize: '14px'
     }
 })
-const styleBtn = {
-    border: ' none',
-    width: '100px',
-    height: '100px',
-    fontSize: ' 32px',
-    cursor: 'pointer',
-    borderRadius: '24px',
-
-}
 function Item(props) {
     const { sx, ...other } = props;
     return (
@@ -139,7 +122,7 @@ function GridDashboard() {
         axios.get(`${url}api/user/getAllUsers/`)
             .then((response) => {
                 const allData = response.data.userDetails;
-                console.log(allData);
+                // console.log(allData);
                 setData(allData.length);
             })
             .catch(error => console.error(`Error:${error}`));
@@ -148,10 +131,11 @@ function GridDashboard() {
     //get-all-transactions
     const [data1, setData1] = useState([]);
     const getAllData1 = () => {
-        axios.get(`${url}api/routes/getRouteByRouteTypeId/63231974ab0eb78613fa0ab1`)
+        axios.get(`${url}api/location/getLocationByTypeWithOnePic/?type=walking-route`)
             .then((response) => {
                 const allData = response.data.result;
-                console.log(allData.length);
+                console.log("allData.length");
+                console.log(response);
                 setData1(allData.length);
             })
             .catch(error => console.error(`Error:${error}`));
@@ -159,7 +143,7 @@ function GridDashboard() {
     }
     const [data2, setData2] = useState([]);
     const getAllData2 = () => {
-        axios.get(`${url}api/routes/getRouteByRouteTypeId/62fcdb4ff201e720aef6a3a2`)
+        axios.get(`${url}api/location/getLocationByTypeWithOnePic/?type=dog-walk`)
             .then((response) => {
                 const allData = response.data.result;
                 console.log(allData.length);
@@ -170,10 +154,11 @@ function GridDashboard() {
     }
     const [data3, setData3] = useState([]);
     const getAllData3 = () => {
-        axios.get(`${url}api/toilet/getToilets`)
+        axios.get(`${url}api/location/getLocationByTypeWithOnePic/?type=toilet`)
             .then((response) => {
-                const allData = response.data.data;
+                const allData = response.data.result;
                 console.log(allData);
+
                 setData3(allData.length);
             })
             .catch(error => console.error(`Error:${error}`));
@@ -192,36 +177,28 @@ function GridDashboard() {
     return (
         <div>
             <Grid container spacing={2} >
-                {/* <Grid item xs={12} md={12}>
-                    <div className={classes.HeadingWelcome}>Welcome Admin!</div>
-                </Grid> */}
                 <Grid item xs={12} md={3}>
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={12} >
                             <Box
-                                className="card_style"
+                                className="card_style3"
                             >
                                 <Grid item xs={12} md={12}>
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} md={3} >
-                                            <MedicineBoxOutlined className='iconStyleCard' />
+                                            <GroupIcon className='iconStyleCard2' />
                                         </Grid>
                                         <Grid item xs={12} md={9} >
                                             <Grid container spacing={2}>
                                                 <Grid item xs={12} md={12} >
                                                     <div className={classes.remarksHeader2}>{data}</div>
-
                                                 </Grid>
                                                 <Grid item xs={12} md={12} >
                                                     <div className={classes.remarksHeader}>Total Users</div>
-
                                                 </Grid>
                                             </Grid>
-
                                         </Grid>
                                     </Grid>
-
-
                                 </Grid>
                             </Box>
                         </Grid>
@@ -232,12 +209,12 @@ function GridDashboard() {
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={12} >
                             <Box
-                                className="card_style"
+                                className="card_style2"
                             >
                                 <Grid item xs={12} md={12}>
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} md={3} >
-                                            <TableOutlined  className='iconStyleCard1' />
+                                            <DirectionsWalkIcon  className='iconStyleCard2' />
                                         </Grid>
                                         <Grid item xs={12} md={9} >
                                             <Grid container spacing={2}>
@@ -247,14 +224,11 @@ function GridDashboard() {
                                                 </Grid>
                                                 <Grid item xs={12} md={12} >
                                                     <div className={classes.remarksHeader}>Walking Routes</div>
-
                                                 </Grid>
                                             </Grid>
 
                                         </Grid>
                                     </Grid>
-
-
                                 </Grid>
                             </Box>
                         </Grid>
@@ -265,12 +239,12 @@ function GridDashboard() {
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={12} >
                             <Box
-                                className="card_style"
+                                className="card_style1"
                             >
                                 <Grid item xs={12} md={12}>
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} md={3} >
-                                            <LikeOutlined  className='iconStyleCard2' />
+                                            <PetsIcon   className='iconStyleCard2'/>
                                         </Grid>
                                         <Grid item xs={12} md={9} >
                                             <Grid container spacing={2}>
@@ -280,14 +254,10 @@ function GridDashboard() {
                                                 </Grid>
                                                 <Grid item xs={12} md={12} >
                                                     <div className={classes.remarksHeader}>Total Dog Walks</div>
-
                                                 </Grid>
                                             </Grid>
-
                                         </Grid>
                                     </Grid>
-
-
                                 </Grid>
                             </Box>
                         </Grid>
@@ -304,65 +274,24 @@ function GridDashboard() {
                                 <Grid item xs={12} md={12}>
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} md={3} >
-                                            <MedicineBoxOutlined  className='iconStyleCard' />
+                                            <WcIcon  className='iconStyleCard2' />
                                         </Grid>
                                         <Grid item xs={12} md={9} >
                                             <Grid container spacing={2}>
                                                 <Grid item xs={12} md={12} >
                                                     <div className={classes.remarksHeader2}>{data3}</div>
-
                                                 </Grid>
                                                 <Grid item xs={12} md={12} >
                                                     <div className={classes.remarksHeader}>Total Toilets</div>
-
                                                 </Grid>
                                             </Grid>
-
                                         </Grid>
                                     </Grid>
-
-
                                 </Grid>
                             </Box>
                         </Grid>
                     </Grid>
                 </Grid>
-                
-                {/* <Grid item xs={12} md={12}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} md={12} >
-                            <Box
-                                className="card_style"
-                            >
-                                <Grid item xs={12} md={12}>
-                                    <Grid container spacing={2}>
-                                        <Grid item xs={12} md={3} >
-                                            <MedicineBoxOutlined  className='iconStyleCard' />
-                                        </Grid>
-                                        <Grid item xs={12} md={9} >
-                                            <Grid container spacing={2}>
-                                                <Grid item xs={12} md={12} >
-                                                    <div className={classes.remarksHeader2}>56</div>
-
-                                                </Grid>
-                                                <Grid item xs={12} md={12} >
-                                                    <div className={classes.remarksHeader}>Total Income</div>
-
-                                                </Grid>
-                                            </Grid>
-
-                                        </Grid>
-                                    </Grid>
-
-
-                                </Grid>
-                            </Box>
-                        </Grid>
-                    </Grid>
-                </Grid> */}
-               
-               
-                
             </Grid>
         </div>
     )

@@ -3,9 +3,9 @@ import { Grid } from '@mui/material'
 import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import { makeStyles } from '@material-ui/core/styles'
-import { Badge, Card, Button, Modal, Form, Input } from 'antd';
+import { Badge, Card, Button, Modal, Form, Input, Image } from 'antd';
 import { EditTwoTone } from '@ant-design/icons';
-
+import frontPage from "../Images/FrontPage.png"
 import axios from 'axios';
 import url from '../url'
 import '../tableStyle.css'
@@ -159,7 +159,6 @@ function GridDashboardWelcome() {
                 setContactId(response.data.result[0]._id)
             })
             .catch(error => console.error(`Error:${error}`));
-
     }
 
     useEffect(() => {
@@ -210,7 +209,6 @@ function GridDashboardWelcome() {
     const handleOkContact = () => {
         axios.post(`${url}api/contactDetails/createContactDetails`, {
             contactNumber: contactDetails
-
         }, { headers }).then(response => {
             console.log(response)
             getAllData();
@@ -231,149 +229,159 @@ function GridDashboardWelcome() {
     };
     return (
         <div>
-
             <Grid container spacing={2} >
-
-                <Grid item xs={12} md={6}>
-                    <Card title="  Welcome Title" size="small" >
-                        {/* <Badge.Ribbon text="Edit" color="cyan" onClick={showModal}> */}
-                        <Grid container spacing={2} >
-
-                            <Grid item xs={10} md={11}>
-                                {WelcomeTitle}
-
-                            </Grid>
-                            <Grid item xs={2} md={1}>
-                                <EditTwoTone onClick={showModal} />
-                                <Modal
-                                    title="Edit Titles"
-                                    open={isModalOpen}
-                                    visible={isModalOpen}
-                                    //    confirmLoading={confirmLoadingAdd}
-                                    onCancel={handleCancel}
-                                    footer={null}
-                                >
-                                    <Form
-                                        labelCol={{
-                                            span: 4,
-                                        }}
-                                        wrapperCol={{
-                                            span: 14,
-                                        }}
-                                        layout="horizontal"
-                                    >
-
-                                        <Form.Item label="Title ">
-                                            <Input
-                                                value={WelcomeTitle} placeholder="Enter Title"
-                                                onChange={(e) => setWelcomeTitle(e.target.value)
-                                                } />
-                                        </Form.Item>
-                                        <Form.Item label="Description">
-                                            <TextArea rows={4} value={WelcomeDescription} onChange={(e) => setWelcomeDescription(e.target.value)
-                                            } />
-                                        </Form.Item>
-                                        <Form.Item
-                                            wrapperCol={{
-                                                offset: 8,
-                                                span: 16,
-                                            }}
+                <Grid item xs={12} md={8}>
+                    <Grid container spacing={2} >
+                        <Grid item xs={12} md={6}>
+                            <Card title="  Welcome Title" size="small" >
+                                <Grid container spacing={2} >
+                                    <Grid item xs={10} md={11}>
+                                        {WelcomeTitle}
+                                    </Grid>
+                                    <Grid item xs={2} md={1}>
+                                        <EditTwoTone onClick={showModal} />
+                                        <Modal
+                                            title="Edit Titles"
+                                            open={isModalOpen}
+                                            visible={isModalOpen}
+                                            onCancel={handleCancel}
+                                            footer={null}
                                         >
-                                            <Button type="primary" htmlType="submit" onClick={handleOk} style={{ backgroundColor: '#1A513B', border: 'none' }}>
-                                                Save
-                                            </Button>
-                                        </Form.Item>
+                                            <Form
+                                                labelCol={{
+                                                    span: 4,
+                                                }}
+                                                wrapperCol={{
+                                                    span: 14,
+                                                }}
+                                                layout="horizontal"
+                                            >
+
+                                                <Form.Item label="Title ">
+                                                    <Input
+                                                        value={WelcomeTitle} placeholder="Enter Title"
+                                                        onChange={(e) => setWelcomeTitle(e.target.value)
+                                                        } />
+                                                </Form.Item>
+                                                <Form.Item label="Description">
+                                                    <TextArea rows={4} value={WelcomeDescription} onChange={(e) => setWelcomeDescription(e.target.value)
+                                                    } />
+                                                </Form.Item>
+                                                <Form.Item
+                                                    wrapperCol={{
+                                                        offset: 8,
+                                                        span: 16,
+                                                    }}
+                                                >
+                                                    <Button type="primary" htmlType="submit" onClick={handleOk} style={{ backgroundColor: '#1A513B', border: 'none' }}>
+                                                        Save
+                                                    </Button>
+                                                </Form.Item>
 
 
-                                    </Form>
-                                </Modal>
+                                            </Form>
+                                        </Modal>
 
 
+                                    </Grid>
+                                </Grid>
+                            </Card>
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <Card title="  Contact Number" size="small">
+
+                                <Grid container spacing={2} >
+
+                                    <Grid item xs={11} md={11}>
+                                        {contactDetails}
+
+                                    </Grid>
+                                    <Grid item xs={1} md={1}>
+                                        <EditTwoTone onClick={showModalContact} />
+                                        {/* Contact  */}
+                                        <Modal
+                                            title="Edit Contact"
+                                            open={showContact}
+                                            visible={showContact}
+                                            onCancel={handleCancelContact}
+                                            footer={null}
+                                        >
+                                            <Form
+                                                labelCol={{
+                                                    span: 4,
+                                                }}
+                                                wrapperCol={{
+                                                    span: 14,
+                                                }}
+                                                layout="horizontal"
+                                            >
+                                                <Form.Item label="Contact ">
+                                                    <Input
+                                                        value={contactDetails} placeholder="Enter Contact Number"
+                                                        onChange={(e) => setContactDetails(e.target.value)
+                                                        }
+                                                    />
+                                                </Form.Item>
+
+                                                <Form.Item
+                                                    wrapperCol={{
+                                                        offset: 8,
+                                                        span: 16,
+                                                    }}
+                                                >
+                                                    <Button type="primary" htmlType="submit" onClick={handleOkContact} style={{ backgroundColor: '#1A513B', border: 'none' }}>
+                                                        Save
+                                                    </Button>
+                                                </Form.Item>
+
+
+                                            </Form>
+                                        </Modal>
+                                    </Grid>
+                                </Grid>
+                            </Card>
+                        </Grid>
+                        <Grid item xs={12} md={12}>
+
+                            <Card title="Description" size="small" style={{ height: '300px' }}>
+
+                                <Grid container spacing={2} >
+
+                                    <Grid item xs={11} md={11}>
+                                        {WelcomeDescription}
+
+                                    </Grid>
+                                    <Grid item xs={1} md={1}>
+                                        <EditTwoTone onClick={showModal} />
+                                    </Grid>
+                                </Grid>
+                            </Card>
+                        </Grid>
+                    </Grid>
+                </Grid>
+                <Grid item xs={12} md={4}>
+                    <Card title="Home Screen" size="small" >
+                        <Grid container spacing={2} align="center">
+                            <Grid item xs={12} md={12}>
+                                <div class="gfg">
+                                    <img src={frontPage} width={160} />
+                                    <h3 class="first-txt">
+                                        {WelcomeTitle.slice(0, 11)}
+                                    </h3>
+                                    <h3 class="third-txt">
+                                        {WelcomeTitle.slice(11, 100)}
+                                    </h3>
+
+                                    <h3 class="second-txt">
+                                        {WelcomeDescription}
+                                    </h3>
+                                </div>
                             </Grid>
                         </Grid>
-                        {/* </Badge.Ribbon> */}
-
-                    </Card>
-
-                </Grid>
-                <Grid item xs={12} md={6}>
-                    <Card title="  Contact Number" size="small">
-
-                        <Grid container spacing={2} >
-
-                            <Grid item xs={11} md={11}>
-                                {contactDetails}
-
-                            </Grid>
-                            <Grid item xs={1} md={1}>
-                                <EditTwoTone onClick={showModalContact} />
-                                   {/* Contact  */}
-                    <Modal
-                        title="Edit Contact"
-                        open={showContact}
-                        visible={showContact}
-                        // //    confirmLoading={confirmLoadingAdd}
-                        onCancel={handleCancelContact}
-                        footer={null}
-                    >
-                        <Form
-                            labelCol={{
-                                span: 4,
-                            }}
-                            wrapperCol={{
-                                span: 14,
-                            }}
-                            layout="horizontal"
-                        >
-
-                            <Form.Item label="Contact ">
-                                <Input
-                                    value={contactDetails} placeholder="Enter Contact Number"
-                                    onChange={(e) => setContactDetails(e.target.value)
-                                    }
-                                    />
-                            </Form.Item>
-
-                            <Form.Item
-                                wrapperCol={{
-                                    offset: 8,
-                                    span: 16,
-                                }}
-                            >
-                                <Button type="primary" htmlType="submit" onClick={handleOkContact} style={{ backgroundColor: '#1A513B', border: 'none' }}>
-                                    Save
-                                </Button>
-                            </Form.Item>
-
-
-                        </Form>
-                    </Modal>
-                            </Grid>
-                        </Grid>
-                    </Card>
-                 
-
-                </Grid>
-                <Grid item xs={12} md={12}>
-
-                    <Card title="Description" size="small" style={{ height: '300px' }}>
-
-                        <Grid container spacing={2} >
-
-                            <Grid item xs={11} md={11}>
-                                {WelcomeDescription}
-
-                            </Grid>
-                            <Grid item xs={1} md={1}>
-                                <EditTwoTone onClick={showModal} />
-                            </Grid>
-                        </Grid>
                     </Card>
                 </Grid>
-
-
-
             </Grid>
+
         </div>
     )
 }
