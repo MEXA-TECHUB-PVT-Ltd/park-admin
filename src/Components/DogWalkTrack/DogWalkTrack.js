@@ -1,39 +1,44 @@
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import HomeIcon from '@mui/icons-material/Home';
-import { DeleteTwoTone, ExclamationCircleOutlined, EditTwoTone } from '@ant-design/icons';
-import { Button, Input, Space, Table, Form, Select }
+import { SearchOutlined, DeleteTwoTone, ExclamationCircleOutlined, EditTwoTone, PlusOutlined } from '@ant-design/icons';
+import { Button, Input, Space, Table, Form, Select, Upload, Image }
     from 'antd';
+import PetsIcon from '@mui/icons-material/Pets';
+
 import React, { useRef, useState, useEffect } from 'react';
+import Highlighter from 'react-highlight-words';
 import Grid from '@material-ui/core/Grid';
 import { Typography } from '@mui/material';
 import { Modal } from 'antd';
 import axios from "axios";
+import WcIcon from '@mui/icons-material/Wc';
 import Box from '@mui/material/Box';
 import '../tableStyle.css'
-import PetsIcon from '@mui/icons-material/Pets';
-import ClipLoader from "react-spinners/ClipLoader";
-
-
 import url from '../url'
+import googleMapsApiKey from '../mapKey'
+import ClipLoader from "react-spinners/ClipLoader";
 import PropTypes from 'prop-types';
 import {
     GoogleMap,
     useLoadScript,
     Marker,
-    DirectionsRenderer
 } from "@react-google-maps/api";
 const { Option } = Select;
 
+const libraries = ["places"];
 const mapContainerStyle = {
     height: "300px",
-    width: "100%",
+    width: "470px",
 };
 const options = {
     disableDefaultUI: true,
     zoomControl: true,
 };
-const center = { lat: 56.002716, lng: -4.580081 }
+const center = {
+    lat: 43.6532,
+    lng: -79.3832,
+};
 
 const { confirm } = Modal;
 
@@ -46,7 +51,7 @@ const marginTop = {
 }
 const addbtn = {
     height: '50px',
-    cursor:'pointer',
+    cursor: 'pointer',
     // borderRadius: '20px',
     backgroundColor: '#1A513B',
     color: 'white',
@@ -55,6 +60,7 @@ const override = {
     display: ' block',
     margin: '0 auto',
 }
+
 function Item(props) {
     const { sx, ...other } = props;
     return (
@@ -87,26 +93,14 @@ Item.propTypes = {
 };
 function DogWalkTrack() {
     //Get API Axios
+    const [loading1, setLoading1] = useState(false);
+
     const [data, setData] = useState([]);
-
-
     const [loading, setLoading] = useState(false);
-    const getAllData1 = () => {
-        axios.get(`${url}api/routes/getRouteByRouteTypeId/62fcdb4ff201e720aef6a3a2`)
-            .then((response) => {
-                console.log("response.data");
-                console.log(response.data.result);
-
-                setDataLocationType(response.data.result);
-                // setLoading(true)
-            })
-            .catch(error => console.error(`Error:${error}`));
-
-    }
     const getAllData = () => {
-        axios.get(`${url}api/routes/getRouteByRouteTypeId/62fcdb4ff201e720aef6a3a2`)
+        axios.get(`${url}api/location/getLocationByTypeWithOnePic/?type=dog-walk`)
             .then((response) => {
-                const allData = response.data.result;
+                const allData = response.data;
                 console.log(allData);
                 setData(response.data.result);
                 setLoading(true)
@@ -116,17 +110,10 @@ function DogWalkTrack() {
     }
     useEffect(() => {
         getAllData();
-        getAllData1();
         setMarkers(
             {
-                lat: 56.002716,
-                lng: -4.580081
-            }
-        )
-        setMarkersB(
-            {
-                lat: 56.00387929999999,
-                lng: -4.576957
+                lat: 43.6532,
+                lng: -79.3832,
             }
         )
 
@@ -140,9 +127,7 @@ function DogWalkTrack() {
         setLocationIdType(event);
 
     };
-    const handleChangeEdit = (event) => {
-        setLocationIdTypeEdit(event.target.value);
-    };
+
     // Add 
     function handleClick(event) {
         event.preventDefault();
@@ -151,48 +136,138 @@ function DogWalkTrack() {
 
         console.info('You clicked a breadcrumb.');
     }
+    const [searchText, setSearchText] = useState('');
+    const [searchedColumn, setSearchedColumn] = useState('');
+    const searchInput = useRef(null);
+
+    const handleSearch = (selectedKeys, confirm, dataIndex) => {
+        confirm();
+        setSearchText(selectedKeys[0]);
+        setSearchedColumn(dataIndex);
+    };
+
+    const handleReset = (clearFilters) => {
+        clearFilters();
+        setSearchText('');
+    };
+
+    const getColumnSearchProps = (dataIndex) => ({
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+            <div
+                style={{
+                    padding: 8,
+                }}
+            >
+                <Input
+                    ref={searchInput}
+                    placeholder={`Search ${dataIndex}`}
+                    value={selectedKeys[0]}
+                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+                    style={{
+                        marginBottom: 8,
+                        display: 'block',
+                    }}
+                />
+                <Space>
+                    <Button
+                        type="primary"
+                        onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{
+                            width: 90,
+                        }}
+                    >
+                        Search
+                    </Button>
+                    <Button
+                        onClick={() => clearFilters && handleReset(clearFilters)}
+                        size="small"
+                        style={{
+                            width: 90,
+                        }}
+                    >
+                        Reset
+                    </Button>
+                    <Button
+                        type="link"
+                        size="small"
+                        onClick={() => {
+                            confirm({
+                                closeDropdown: false,
+                            });
+                            setSearchText(selectedKeys[0]);
+                            setSearchedColumn(dataIndex);
+                        }}
+                    >
+                        Filter
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: (filtered) => (
+            <SearchOutlined
+                style={{
+                    color: filtered ? '#1890ff' : undefined,
+                }}
+            />
+        ),
+        onFilter: (value, record) =>
+            record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+        onFilterDropdownVisibleChange: (visible) => {
+            if (visible) {
+                setTimeout(() => searchInput.current?.select(), 100);
+            }
+        },
+        render: (text) =>
+            searchedColumn === dataIndex ? (
+                <Highlighter
+                    highlightStyle={{
+                        backgroundColor: '#ffc069',
+                        padding: 0,
+                    }}
+                    searchWords={[searchText]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ''}
+                />
+            ) : (
+                text
+            ),
+    });
+
     const columns = [
         // {
-        //     title: 'Name',
+        //     title: 'Image',
         //     width: '20%',
-        //     key: 'locationName',
+        //     key: 'title',
         //     render: (_, record) => (
         //         <Space size="middle">
-        //             {record.name}
+        //             <Image
+        //                 width={100}
+        //                 src={record.images[0].image_url}
+        //             />
         //         </Space>
         //     ),
         // },
         {
-            title: 'Route Type',
+            title: 'Title',
             width: '20%',
-            key: 'routeType',
+            key: 'title',
             render: (_, record) => (
                 <Space size="middle">
-                    {record.routeTypeId.routeType}
+                    {record.title}
                 </Space>
-
             ),
         },
         {
-            title: 'Origin Coordinates',
+            title: 'Location Address',
             width: '20%',
-            key: 'routeType',
+            key: 'location',
             render: (_, record) => (
                 <Space size="middle">
-                    {record.pointA.location.coordinates}
+                    {record.location.coordinates}
                 </Space>
-
-            ),
-        },
-        {
-            title: 'Destination Coordinates',
-            width: '20%',
-            key: 'routeType',
-            render: (_, record) => (
-                <Space size="middle">
-                    {record.pointB.location.coordinates}
-                </Space>
-
             ),
         },
         {
@@ -203,10 +278,18 @@ function DogWalkTrack() {
                 <Space size="middle">
                     {record.distance}
                 </Space>
-
             ),
         },
-
+        {
+            title: 'Avg Time',
+            width: '20%',
+            key: 'avg_time',
+            render: (_, record) => (
+                <Space size="middle">
+                    {record.avg_time}
+                </Space>
+            ),
+        },
         {
             title: 'Action',
             width: '20%',
@@ -222,7 +305,7 @@ function DogWalkTrack() {
                     <a
                         onClick={() => {
                             // console.log(row._id)
-                            onToggleView(record._id, record.routeTypeId._id, record.approxTime, record.distance, record.pointA.location.coordinates, record.pointB.location.coordinates)
+                            onToggleView(record._id, record.location.coordinates)
                             // showModalAdd
                         }}
                     ><EditTwoTone style={iconFont} twoToneColor="green" /></a>
@@ -236,86 +319,41 @@ function DogWalkTrack() {
     //   View 
     const [visibleView, setVisibleView] = useState(false);
     const [confirmLoadingView, setConfirmLoadingView] = useState(false);
-    const [modalTextView, setModalTextView] = useState('Content of the modal');
-
-    const showModalView = () => {
-        setVisibleView(true);
-    };
-
-    const handleOkView = () => {
-        setModalTextView('The modal will be closed after two seconds');
-        setConfirmLoadingView(true);
-        setTimeout(() => {
-            setVisibleView(false);
-            setConfirmLoadingView(false);
-        }, 2000);
-    };
-
     const handleCancelView = () => {
-        // clearRoute()
         console.log('Clicked cancel button');
         setVisibleView(false);
-        setDirectionsResponse(null)
-        setDistance('')
-        setDuration('')
-        setAPlace('')
-        setBPlace('')
-        setpointAEdit('')
-        setpointBEdit('')
     };
     const [editId, setEditId] = React.useState('')
-    const onToggleView = async (id, routeType, time, distance, pointA, pointB) => {
+    const onToggleView = async (id, coordinates) => {
+        setMarkers(
+            {
+                lat: coordinates[0],
+                lng: coordinates[1]
+            }
+        );
+        await axios.get(`${url}api/location/getLocationById/${id}`
+            , { headers }).then(response => {
+                console.log('response')
+                console.log(response.data)
 
-        axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${pointA[0]},${pointA[1]}&sensor=true&key=AIzaSyAYEkl4Du9zEcm1X2u1HEepM8DAuk9dYUk`)
-            .then((response) => {
-                const allData = response.data.results[0];
-                console.log(allData);
-                setMarkers(
-                    {
-                        lat: response.data.results[0].geometry.location.lat,
-                        lng: response.data.results[0].geometry.location.lng
-                    }
-                )
-                setpointAEdit(response.data.results[0].formatted_address)
-                // Second API 
-                axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${pointB[0]},${pointB[1]}&sensor=true&key=AIzaSyAYEkl4Du9zEcm1X2u1HEepM8DAuk9dYUk`)
-                    .then((response) => {
-                        const allData = response.data.results[0];
-                        console.log(allData);
-                        setMarkersB(
-                            {
-                                lat: response.data.results[0].geometry.location.lat,
-                                lng: response.data.results[0].geometry.location.lng
-                            }
-                        )
-                        setpointBEdit(response.data.results[0].formatted_address)
-                        // Other 
-                        setEditId(id)
-                        setapproxTimeEdit(time);
-                        setrouteTypeEdit(routeType)
-                        setdistanceCalculated(distance)
-                        setmodeTravel("WALKING")
+                console.log(coordinates[0]);
+                setEditId(response.data.data._id)
+                setImagesEdit(response.data.data.images)
+                setnameLocationEdit(response.data.data.title);
+                setDistanceEdit(response.data.data.distance)
+                setavg_timeEdit(response.data.data.avg_time)
+                setdescriptionEdit(response.data.data.description)
+                setDisplay(true)
+                setVisibleView(true);
+                // console.log(response.data.data.images)
 
-
-
-                    })
-                    .catch(error => console.error(`Error:${error}`));
 
             })
-            .catch(error => console.error(`Error:${error}`));
+            .catch(err => {
+                console.log(err)
+            })
 
-        //eslint-disable-next-line no-undef
-        const directionsService = new google.maps.DirectionsService()
-        const results = await directionsService.route({
-            origin: pointAEdit,
-            destination: pointBEdit,
-            //eslint-disable-next-line no-undef
-            travelMode: google.maps.TravelMode[modeTravel]
-        })
-        setDirectionsResponse(results)
-        setVisibleView(true);
-
-
+        // setVisibleView(true);
     }
     const headers = {
         'Content-Type': 'application/json'
@@ -323,14 +361,15 @@ function DogWalkTrack() {
     // Delete 
     const showDeleteConfirm = (IdData) => {
         confirm({
-            title: 'Are you sure delete this Route?',
+            title: 'Are you sure delete this Dog Walk Track?',
             icon: <ExclamationCircleOutlined />,
             okText: 'Yes',
             okType: 'danger',
             cancelText: 'No',
+
             onOk() {
                 // Api 
-                axios.delete(`${url}api/routes/deleteRoute/${IdData}`, { headers })
+                axios.delete(`${url}api/location/deleteLocation/${IdData}`, { headers })
                     .then(res => {
                         console.log(res);
                         console.log(res.data);
@@ -340,7 +379,7 @@ function DogWalkTrack() {
                     })
                 console.log('OK');
                 Modal.success({
-                    content: 'Route Deleted Successfully',
+                    content: 'Dog Walk Track Deleted Successfully',
                 });
             },
             onCancel() {
@@ -353,174 +392,107 @@ function DogWalkTrack() {
         showDeleteConfirm(IdData)
     }
     // Add 
-    const [loading1, setLoading1] = useState(false);
+    const [nameLocation, setnameLocation] = useState('');
+    const [distance, setDistance] = useState('');
+    const [description, setdescription] = useState('');
+    const [display, setDisplay] = useState(true);
 
+    const [avg_time, setavg_time] = useState('');
+    const [nameLocationEdit, setnameLocationEdit] = useState('');
+    const [imagesEdit, setImagesEdit] = useState([]);
+    const [images, setImages] = useState([]);
+    const [distanceEdit, setDistanceEdit] = useState('');
+    const [avg_timeEdit, setavg_timeEdit] = useState('');
+    const [descriptionEdit, setdescriptionEdit] = useState('');
     const [visibleAdd, setVisibleAdd] = useState(false);
     const [confirmLoadingAdd, setConfirmLoadingAdd] = useState(false);
+    const showModalAdd = () => {
+        setVisibleAdd(true);
+    };
 
     const handleOkAdd = () => {
-        setLoading1(true)
-        setTimeout(() => {
-            setLoading1(false)
-            if (markers === '' || distance === '') {
+        console.log(images)
+        const coordinates = {
+            "coordinates": [markers.lat, markers.lng]
+        }
+        let formData = new FormData();
+        console.log("coordinates");
+        console.log(coordinates);
+        for (let i = 0; i < images.length; i++) {
+            formData.append('images', images[i])
+        }
+        formData.append('type', 'dog-walk');
+        formData.append('location', JSON.stringify(coordinates));
+        formData.append('title', nameLocation);
+        formData.append('description', description);
+        formData.append('distance', distance);
+        formData.append('avg_time', avg_time);
+        console.log(formData)
+        var config = {
+            method: 'post',
+            url: url + 'api/location/createLocation',
+            headers: {
+                'Content-Type': `multipart/form-data`,
+            },
+            data: formData
+        };
+        axios(config)
+            .then(function (response) {
+                console.log(response.data);
+                setVisibleAdd(false);
+                getAllData();
                 Modal.success({
-                    content: 'Calculate Dog Walk Route Then Continue',
+                    content: 'Added Dog Walk Track Successfully',
                 });
-            } else {
-                axios.post(`${url}api/routes/createRoute`, {
-                    routeTypeId: "62fcdb4ff201e720aef6a3a2",
-                    pointA: {
-                        location: {
-                            coordinates: [markers.lat, markers.lng]
-                        }
-                    }, pointB: {
-                        location: {
-                            coordinates: [markersB.lat, markersB.lng]
-                        }
-                    },
-                    distance: distance,
-                    approxTime: duration
-
-                }, { headers }).then(response => {
-                    console.log(response)
-                    getAllData();
-                    setViewMapRoutes(false);
-                    setConfirmLoadingAdd(false);
-                    Modal.success({
-                        content: 'Created Dog Walk Route Successfully',
-                    });
-                    setDirectionsResponse(null)
-                    setDistance('')
-                    setDuration('')
-                    setAPlace('')
-                    setBPlace('')
-                    // setLocationIdType('')
-
-                })
-                    .catch(err => {
-                        console.log(err)
-                    })
-            }
-        }, 3000)
+            })
     };
-    // View Map 
-    const [viewMapRoutes, setViewMapRoutes] = useState(false);
-    const [confirmMapAdd, setConfirmMapAdd] = useState(false);
-
-    const showModalRoute = () => {
-        setViewMapRoutes(true);
-        setVisibleAdd(false)
-    };
-
-    const handleCancelMapRoute = () => {
-        console.log('Clicked cancel button');
-        setViewMapRoutes(false);
-    };
-
-    const [map, setMap] = useState(/** @type google.maps.Map */(null))
-    const [directionsResponse, setDirectionsResponse] = useState(null)
-    const [distance, setDistance] = useState('')
-    const [duration, setDuration] = useState('')
-    //  const [markers, setMarkers] = React.useState([]);
-    const [markersB, setMarkersB] = React.useState([]);
-    const [APlace, setAPlace] = useState('')
-    const [BPlace, setBPlace] = useState('')
-    const [modeTravel, setmodeTravel] = useState('')
-
-    // Map 
-    async function calculateRoute() {
-        setmodeTravel("WALKING")
-        console.log(APlace)
-        //eslint-disable-next-line no-undef
-        const directionsService = new google.maps.DirectionsService()
-        const results = await directionsService.route({
-            origin: APlace,
-            destination: BPlace,
-            //eslint-disable-next-line no-undef
-            travelMode: google.maps.TravelMode[modeTravel]
-        })
-        setDirectionsResponse(results)
-        setDistance(results.routes[0].legs[0].distance.text)
-        setDuration(results.routes[0].legs[0].duration.text)
-    }
-    async function calculateRouteEdit() {
-        setmodeTravel("WALKING")
-        //eslint-disable-next-line no-undef
-        const directionsService = new google.maps.DirectionsService()
-        const resultsA = await directionsService.route({
-            origin: pointAEdit,
-            destination: pointBEdit,
-            //eslint-disable-next-line no-undef
-            travelMode: google.maps.TravelMode[modeTravel]
-        })
-        console.log(resultsA)
-        setDirectionsResponse(resultsA)
-        setdistanceCalculated(resultsA.routes[0].legs[0].distance.text)
-        setapproxTimeEdit(resultsA.routes[0].legs[0].duration.text)
-    }
-    function clearRoute() {
-        setDirectionsResponse(null)
-        setDistance('')
-        setDuration('')
-        setAPlace('')
-        setBPlace('')
-        setpointAEdit('')
-        setpointBEdit('')
-    }
-    //   End 
     const handleOkUpdate = () => {
-        axios.put(`${url}api/routes/updateRoute`, {
-            routeId: editId,
-            pointA: {
-                location: {
-                    coordinates: [markers.lat, markers.lng]
-                }
-            }
-
-        }, { headers }).then(response => {
-            console.log(response)
-            getAllData();
-            setVisibleView(false);
-            setConfirmLoadingAdd(false);
-            Modal.success({
-                content: 'Updated Dog Walk Route Successfully',
-            });
-
-
-        })
-            .catch(err => {
-                console.log(err)
+        console.log(imagesEdit)
+        console.log(editId)
+        let formData = new FormData();
+        for (let i = 0; i < imagesEdit.length; i++) {
+            formData.append('images', imagesEdit[i])
+        }
+        //   formData.append(`images`, imagesEdit[0])
+        formData.append('type', 'dog-walk');
+        formData.append('lat', markers.lat);
+        formData.append('long', markers.lng);
+        formData.append('location_id', editId);
+        formData.append('title', nameLocationEdit);
+        formData.append('description', descriptionEdit);
+        formData.append('distance', distanceEdit);
+        formData.append('avg_time', avg_timeEdit);
+        var config = {
+            method: 'put',
+            url: url + 'api/location/updateLocation',
+            headers: {
+                'Content-Type': `multipart/form-data`,
+            },
+            data: formData
+        };
+        axios(config)
+            .then(function (response) {
+                console.log(response.data)
+                getAllData();
+                setVisibleView(false);
+                setConfirmLoadingAdd(false);
+                Modal.success({
+                    content: 'Updated Dog Walk Track Successfully',
+                });
+                setImagesEdit([])
             })
     };
 
     const handleCancelAdd = () => {
         console.log('Clicked cancel button');
         setVisibleAdd(false);
-        setDirectionsResponse(null)
-        setDistance('')
-        setDuration('')
-        setAPlace('')
-        setBPlace('')
-        setpointAEdit('')
-        setpointBEdit('')
     };
-    const [dataLocationType, setDataLocationType] = useState([]);
-    const [nameLocation, setnameLocation] = useState('');
-    const [nameLocationEdit, setnameLocationEdit] = useState('');
-
-    const [approxTimeEdit, setapproxTimeEdit] = useState('');
-    const [distanceCalculated, setdistanceCalculated] = useState('');
-    const [pointAEdit, setpointAEdit] = useState('');
-    const [routeTypeEdit, setrouteTypeEdit] = useState('');
-
-    const [pointBEdit, setpointBEdit] = useState('');
-
 
 
     // Google Map 
     const { isLoaded, loadError } = useLoadScript({
-        googleMapsApiKey: "AIzaSyAYEkl4Du9zEcm1X2u1HEepM8DAuk9dYUk",
-        libraries: ['places'],
+        googleMapsApiKey: googleMapsApiKey,
+        libraries,
     });
     const [markers, setMarkers] = React.useState([]);
     const mapRef = React.useRef();
@@ -530,6 +502,19 @@ function DogWalkTrack() {
 
     if (loadError) return "Error";
     if (!isLoaded) return "Loading...";
+    const FileUploadImages = (e) => {
+        console.log(e)
+        setImagesEdit(e.fileList)
+    }
+    const handleImage = (e) => {
+        console.log("e.target.files")
+        setImages(e.target.files)
+    }
+    const handleImageEdit = (e) => {
+        console.log("e.target.files")
+        setImagesEdit(e.target.files)
+        setDisplay(false)
+    }
     return (
         <div >
             <div role="presentation">
@@ -549,7 +534,7 @@ function DogWalkTrack() {
                         color="text.primary"
                     >
                         <PetsIcon sx={{ mr: 0.5 }} fontSize="inherit" />
-                        Dog Walk Routes
+                        DogWalkTrack
                     </Link>
                 </Breadcrumbs>
             </div>
@@ -561,17 +546,16 @@ function DogWalkTrack() {
                             sx={{ display: 'flex', p: 1, bgcolor: 'transparent', borderRadius: 1 }}
                         >
                             <Item sx={{ flexGrow: 2 }}>
-                                <Typography variant='h6' style={{ fontWeight: 700 }} >Dog Walk Routes</Typography>
+                                <Typography variant='h6' style={{ fontWeight: 700 }} >Dog Walk Track</Typography>
                             </Item>
                             <Item>
                                 <Button variant="contained" style={addbtn}
-                                    onClick={showModalRoute}
+                                    onClick={showModalAdd}
                                 >
-                                    + Route
+                                    + Dog Walk
                                 </Button>
                                 <Modal
-                                    width={850}
-                                    title="Add Dog Walk Route"
+                                    title="Add Dog Walk Track"
                                     visible={visibleAdd}
                                     confirmLoading={confirmLoadingAdd}
                                     onCancel={handleCancelAdd}
@@ -586,20 +570,20 @@ function DogWalkTrack() {
                                         }}
                                         layout="horizontal"
                                     >
+                                        <Form.Item label="Select" >
+                                            <input type="file" multiple name="image" placeholder="image"
+                                                onChange={(e) => handleImage(e)} />
+                                        </Form.Item>
 
-                                        <Form.Item label="Name ">
+                                        <Form.Item label="Title ">
                                             <Input value={nameLocation} placeholder="Enter Location Name"
                                                 onChange={(e) => setnameLocation(e.target.value)
                                                 } />
                                         </Form.Item>
-                                        <Form.Item label="Location ">
-                                            <Button type="primary" htmlType="submit" onClick={showModalRoute} style={{ backgroundColor: '#1A513B', border: 'none' }}>
-                                                Select Route from Map
-                                            </Button>
-
+                                        <Form.Item label="Location">
                                         </Form.Item>
+
                                         <div>
-                                            {/* 
                                             <GoogleMap
                                                 id="map"
                                                 mapContainerStyle={mapContainerStyle}
@@ -620,13 +604,24 @@ function DogWalkTrack() {
                                                 <Marker key="added" position={{ lat: markers.lat, lng: markers.lng }}
 
                                                 />
-                                            </GoogleMap> */}
+
+                                            </GoogleMap>
                                         </div>
-
-                                        <Form.Item label="Type" style={{ marginTop: '20px' }}
-                                        >
-
-
+                                        <h5 style={{ margin: '20px' }}>Click on map to edit location</h5>
+                                        <Form.Item label="Description ">
+                                            <Input value={description} placeholder="Enter Description"
+                                                onChange={(e) => setdescription(e.target.value)
+                                                } />
+                                        </Form.Item>
+                                        <Form.Item label="Distance ">
+                                            <Input value={distance} placeholder="Enter Distance"
+                                                onChange={(e) => setDistance(e.target.value)
+                                                } />
+                                        </Form.Item>
+                                        <Form.Item label="Avg Time ">
+                                            <Input value={avg_time} placeholder="Enter Average Time"
+                                                onChange={(e) => setavg_time(e.target.value)
+                                                } />
                                         </Form.Item>
 
                                         <Form.Item
@@ -636,179 +631,14 @@ function DogWalkTrack() {
                                             }}
                                         >
                                             <Button type="primary" htmlType="submit" onClick={handleOkAdd} style={{ backgroundColor: '#1A513B', border: 'none' }}>
-                                                Submit
+                                                {loading1 ? <ClipLoader color='white' loading={loading1} css={override} size={10} /> : <h5 style={{ color: 'white' }}>
+                                                    Save</h5>}
                                             </Button>
+
                                         </Form.Item>
 
                                     </Form>
-                                </Modal>
-                                {/* Map Modal  */}
-                                <Modal
-                                    width={850}
-                                    title="Select Map Route"
-                                    visible={viewMapRoutes}
-                                    confirmLoading={confirmMapAdd}
-                                    onCancel={handleCancelMapRoute}
-                                    footer={null}
-                                >
 
-                                    <Form
-                                        labelCol={{
-                                            span: 4,
-                                        }}
-                                        wrapperCol={{
-                                            span: 14,
-                                        }}
-                                        layout="horizontal"
-                                    >
-
-                                        <Grid container spacing={2}>
-
-                                            <Grid item xs={12} md={3}>
-                                                Select Route Type:
-                                            </Grid>
-                                            <Grid item xs={12} md={3}>
-                                                <Select
-                                                    style={{ width: '100%' }}
-                                                    defaultValue=""
-                                                    disabled
-                                                    value="Dog Walking Route"
-                                                    onChange={handleChange}
-                                                >
-                                                    <Option value=''>Select Route Type</Option>
-
-                                                    {dataLocationType.map((row) => (
-                                                        <Option value={row._id}>{row.routeType}</Option>
-                                                    ))}
-                                                </Select>
-                                            </Grid>
-                                            <Grid item xs={12} md={3}>
-                                                Location Name:
-                                            </Grid>
-                                            <Grid item xs={12} md={3}>
-                                                <Input value={nameLocation} placeholder="Enter Location Name"
-                                                    onChange={(e) => setnameLocation(e.target.value)
-                                                    } />
-                                            </Grid>
-                                            <Grid item xs={12} md={3}>
-                                                Selected Start Route:
-                                            </Grid>
-                                            <Grid item xs={12} md={3}>
-                                                <Input value={APlace}
-                                                    disabled />
-                                            </Grid>
-
-                                            <Grid item xs={12} md={3}>
-                                                Selected End Route:
-                                            </Grid>
-                                            <Grid item xs={12} md={3}>
-                                                <Input value={BPlace}
-                                                    disabled />
-                                            </Grid>
-                                            <Grid item xs={12} md={3}>
-                                                Selected Route Distance:
-                                            </Grid>
-                                            <Grid item xs={12} md={3}>
-                                                <Input value={distance}
-                                                    disabled />
-                                            </Grid>
-                                            <Grid item xs={12} md={3}>
-                                                Selected Route Duration:
-                                            </Grid>
-                                            <Grid item xs={12} md={3}>
-                                                <Input value={duration}
-                                                    disabled />
-                                            </Grid>
-
-
-                                            <Grid item xs={12} md={3}>
-                                                Route Mode:
-                                            </Grid>
-                                            <Grid item xs={12} md={9}>
-
-                                                <Select style={{ width: '190px' }} disabled value="WALKING" onChange={(e) => { setmodeTravel(e) }} placeholder='Select Mode of Travel'>
-                                                    <option value='DRIVING'>Driving </option>
-                                                    <option value='WALKING'>Walking</option>
-                                                    <option value='BICYCLING'>Bicycling</option>
-                                                    <option value='TRANSIT'>Transit</option>
-
-                                                </Select>
-                                            </Grid>
-                                            <Grid item xs={12} md={5}>
-                                            </Grid>
-                                            <Grid item xs={12} md={7}>
-                                                <Button onClick={clearRoute}>Clear Route</Button>
-                                                <Button onClick={calculateRoute} style={{ backgroundColor: 'blue', color: 'white' }}>Calculate Route</Button>
-                                                <Button onClick={() => map.panTo(center)} style={{ backgroundColor: 'orange', color: 'white' }}>Back to Center</Button>
-                                                <Button style={{ backgroundColor: '#1a513b', color: 'white' }} onClick={handleOkAdd}> {loading1 ? <ClipLoader color='white' loading={loading1} css={override} size={10} /> : <h5 style={{ color: 'white', marginTop: '-20px' }}>
-                                                    Save</h5>}</Button>
-
-
-                                            </Grid>
-                                            <Grid item xs={12} md={12}>
-                                                <span style={{ fontWeight: '700' }}> Drag and Drop to adjust Route</span>
-                                            </Grid>
-
-                                            <Grid item xs={12} md={12}>
-                                                <div>
-                                                    <GoogleMap center={center} zoom={15}
-                                                        mapContainerStyle={mapContainerStyle}
-                                                        options={{
-                                                            zoomControl: true,
-                                                            streetViewControl: false,
-                                                            mapTypeControl: false,
-                                                            fullscreenControl: true
-                                                        }}
-                                                        onLoad={(map) => { setMap(map) }}
-                                                    >
-                                                        {/* Displaying Markers or directions */}
-                                                        <Marker key="added" position={{ lat: markers.lat, lng: markers.lng }} label="A Marker" draggable={true} onDragEnd={(e) => {
-
-                                                            axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${e.latLng.lat()},${e.latLng.lng()}&sensor=true&key=AIzaSyAYEkl4Du9zEcm1X2u1HEepM8DAuk9dYUk`)
-                                                                .then((response) => {
-                                                                    const allData = response.data.results[0];
-                                                                    console.log(allData);
-                                                                    setMarkers(
-                                                                        {
-                                                                            lat: response.data.results[0].geometry.location.lat,
-                                                                            lng: response.data.results[0].geometry.location.lng
-                                                                        }
-                                                                    )
-                                                                    setAPlace(response.data.results[0].formatted_address)
-
-                                                                })
-                                                                .catch(error => console.error(`Error:${error}`));
-                                                        }} />
-                                                        <Marker key="addedB" position={{ lat: markersB.lat, lng: markersB.lng }} label="B Marker" draggable={true} onDragEnd={(e) => {
-
-                                                            axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${e.latLng.lat()},${e.latLng.lng()}&sensor=true&key=AIzaSyAYEkl4Du9zEcm1X2u1HEepM8DAuk9dYUk`)
-                                                                .then((response) => {
-                                                                    const allData = response.data.results[0];
-                                                                    console.log(allData);
-                                                                    setMarkersB(
-                                                                        {
-                                                                            lat: response.data.results[0].geometry.location.lat,
-                                                                            lng: response.data.results[0].geometry.location.lng
-                                                                        }
-                                                                    )
-                                                                    setBPlace(response.data.results[0].formatted_address)
-
-
-                                                                })
-                                                                .catch(error => console.error(`Error:${error}`));
-                                                        }} />
-
-                                                        {directionsResponse && (<DirectionsRenderer directions={directionsResponse} />)}
-
-                                                    </GoogleMap>
-                                                </div>
-
-                                            </Grid>
-
-
-                                        </Grid>
-
-                                    </Form>
                                 </Modal>
 
                             </Item>
@@ -820,13 +650,12 @@ function DogWalkTrack() {
                             <Table columns={columns} dataSource={data} />
                         </div>
                         <Modal
-                            title="Routes Details"
+                            title="Dog Walk Track Details"
                             visible={visibleView}
                             // onOk={handleOkView}
                             confirmLoading={confirmLoadingView}
                             onCancel={handleCancelView}
                             footer={null}
-                            width={850}
                         >
                             <Form
                                 labelCol={{
@@ -837,136 +666,92 @@ function DogWalkTrack() {
                                 }}
                                 layout="horizontal"
                             >
-                                <Grid container spacing={2}>
+                                {display?
+                                imagesEdit.map((row) => (
+                                    <>
+                                        <Image
+                                            width={100}
+                                            src={row.image_url}
+                                        />
+                                    </>
+                                ))
+                                :null}
+                                {/* {imagesEdit.map((row) => (
+                                    <>
+                                        <Image
+                                            width={100}
+                                            src={row.image_url}
+                                        />
+                                    </>
+                                ))} */}
 
-                                    <Grid item xs={12} md={3}>
-                                        Select Route Type:
-                                    </Grid>
-                                    <Grid item xs={12} md={3}>
-                                        <Select
-                                            style={{ width: '100%' }}
-                                            defaultValue=""
-                                            disabled
-                                            value="Dog Walking Route"
-                                        // onChange={(e) => { setrouteTypeEdit(e) }}
-                                        >
-                                            <Option value=''>Select Route Type</Option>
+                                <Form.Item label="Select" >
+                                    <input type="file" multiple name="image" placeholder="image"
+                                        onChange={(e) => handleImageEdit(e)} />
+                                </Form.Item>
+                                <Form.Item label="Title ">
+                                    <Input value={nameLocationEdit} placeholder="Enter Location Name"
+                                        onChange={(e) => setnameLocationEdit(e.target.value)
+                                        } />
+                                </Form.Item>
+                                <Form.Item label="Location">
+                                </Form.Item>
 
-                                            {dataLocationType.map((row) => (
-                                                <Option value={row._id}>{row.routeType}</Option>
-                                            ))}
-                                        </Select>
-                                    </Grid>
-                                    <Grid item xs={12} md={3}>
-                                        Location Name:
-                                    </Grid>
-                                    <Grid item xs={12} md={3}>
-                                        <Input value={nameLocation} placeholder="Enter Location Name"
-                                            onChange={(e) => setnameLocation(e.target.value)
-                                            } />
-                                    </Grid>
-                                    <Grid item xs={12} md={3}>
-                                        Selected Start Route:
-                                    </Grid>
-                                    <Grid item xs={12} md={3}>
-                                        <Input value={pointAEdit}
-                                            disabled />
-                                    </Grid>
+                                <div>
+                                    <GoogleMap
+                                        id="map"
+                                        mapContainerStyle={mapContainerStyle}
+                                        zoom={15}
+                                        center={center}
+                                        options={options}
+                                        onClick={(e) => {
+                                            setMarkers(
+                                                {
+                                                    lat: e.latLng.lat(),
+                                                    lng: e.latLng.lng()
+                                                }
+                                            )
 
-                                    <Grid item xs={12} md={3}>
-                                        Selected End Route:
-                                    </Grid>
-                                    <Grid item xs={12} md={3}>
-                                        <Input value={pointBEdit}
-                                            disabled />
-                                    </Grid>
-                                    <Grid item xs={12} md={3}>
-                                        Selected Route Distance:
-                                    </Grid>
-                                    <Grid item xs={12} md={3}>
-                                        <Input value={distanceCalculated}
-                                            disabled />
-                                    </Grid>
-                                    <Grid item xs={12} md={3}>
-                                        Selected Route Duration:
-                                    </Grid>
-                                    <Grid item xs={12} md={3}>
-                                        <Input value={approxTimeEdit}
-                                            disabled />
-                                    </Grid>
+                                        }}
+                                        onLoad={onMapLoad}
+                                    >
+                                        <Marker key="added" position={markers}
 
+                                        />
+                                    </GoogleMap>
+                                </div>
+                                <h5 style={{ margin: '20px' }}>Click on map to edit location</h5>
+                                <Form.Item label="Description ">
+                                    <Input value={descriptionEdit} placeholder="Enter Description"
+                                        onChange={(e) => setdescriptionEdit(e.target.value)
+                                        } />
+                                </Form.Item>
+                                <Form.Item label="Distance ">
+                                    <Input value={distanceEdit} placeholder="Enter Distance"
+                                        onChange={(e) => setDistanceEdit(e.target.value)
+                                        } />
+                                </Form.Item>
+                                <Form.Item label="Avg Time ">
+                                    <Input value={avg_timeEdit} placeholder="Enter Average Time"
+                                        onChange={(e) => setavg_timeEdit(e.target.value)
+                                        } />
+                                </Form.Item>
 
-                                    <Grid item xs={12} md={3}>
-                                        Route Mode:
-                                    </Grid>
-                                    <Grid item xs={12} md={9}>
-
-                                        <Select style={{ width: '190px' }} disabled value="WALKING" onChange={(e) => { setmodeTravel(e) }} placeholder='Select Mode of Travel'>
-                                            <option value='DRIVING'>Driving </option>
-                                            <option value='WALKING'>Walking</option>
-                                            <option value='BICYCLING'>Bicycling</option>
-                                            <option value='TRANSIT'>Transit</option>
-
-                                        </Select>
-                                    </Grid>
-                                    <Grid item xs={12} md={5}>
-                                    </Grid>
-                                    <Grid item xs={12} md={7}>
-                                        <Button onClick={clearRoute}>Clear Route</Button>
-                                        <Button onClick={calculateRouteEdit} style={{ backgroundColor: 'blue', color: 'white' }}>Calculate Route</Button>
-                                        <Button onClick={() => map.panTo(center)} style={{ backgroundColor: 'orange', color: 'white' }}>Back to Center</Button>
-                                        <Button style={{ backgroundColor: '#1a513b', color: 'white' }} onClick={handleOkUpdate}>Update</Button>
-
-
-                                    </Grid>
-
-                                    <Grid item xs={12} md={12}>
-                                        <div>
-                                            <GoogleMap center={center} zoom={15}
-                                                mapContainerStyle={mapContainerStyle}
-                                                options={{
-                                                    zoomControl: true,
-                                                    streetViewControl: false,
-                                                    mapTypeControl: false,
-                                                    fullscreenControl: true
-                                                }}
-                                                onLoad={(map) => { setMap(map) }}
-                                            >
-                                                {/* Displaying Markers or directions */}
-                                                <Marker key="added" position={{ lat: markers.lat, lng: markers.lng }} label="A Marker" draggable={true} onDragEnd={(e) => {
-
-                                                    axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${e.latLng.lat()},${e.latLng.lng()}&sensor=true&key=AIzaSyAYEkl4Du9zEcm1X2u1HEepM8DAuk9dYUk`)
-                                                        .then((response) => {
-                                                            const allData = response.data.results[0];
-                                                            console.log(allData);
-                                                            setMarkers(
-                                                                {
-                                                                    lat: response.data.results[0].geometry.location.lat,
-                                                                    lng: response.data.results[0].geometry.location.lng
-                                                                }
-                                                            )
-                                                            setpointAEdit(response.data.results[0].formatted_address)
-
-                                                        })
-                                                        .catch(error => console.error(`Error:${error}`));
-                                                    // )
-                                                    // console.log(markers.lat)
-                                                    // console.log(markers.lng)
-                                                }} />
-                                                <Marker key="addedB" position={{ lat: markersB.lat, lng: markersB.lng }} label="B Marker"
-                                                />
-                                                {directionsResponse && (<DirectionsRenderer directions={directionsResponse} />)}
-
-                                            </GoogleMap>
-                                        </div>
-                                    </Grid>
-                                </Grid>
+                                <Form.Item
+                                    wrapperCol={{
+                                        offset: 8,
+                                        span: 16,
+                                    }}
+                                >
+                                    <Button type="primary" htmlType="submit" onClick={handleOkUpdate} style={{ backgroundColor: '#1A513B', border: 'none' }}>
+                                        Update
+                                    </Button>
+                                </Form.Item>
                             </Form>
                         </Modal>
                     </Grid>
                 </Grid>
             </div>
-
         </div>
     )
 }

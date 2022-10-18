@@ -33,7 +33,7 @@ const ContainerStyle = {
   backgroundImage: `url(${background})` ,
   backgroundSize: 'cover',
   backgroundRepeat: 'no-repeat',
-  backgroundSize: '100% 800px'
+  backgroundSize: '100% 100%'
 }
 const ContainerStyle3 = {
   paddingTop: '150px',
@@ -43,7 +43,7 @@ const ContainerStyle3 = {
   backgroundImage: `url(${background})` ,
   backgroundSize: 'cover',
   backgroundRepeat: 'no-repeat',
-  backgroundSize: '100% 800px'
+  backgroundSize: '100% 100%'
 }
 
 const headingStyle = {

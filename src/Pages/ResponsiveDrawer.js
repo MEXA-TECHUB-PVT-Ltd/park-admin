@@ -6,7 +6,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
-import { styled, useTheme, alpha } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import Drawer from '@mui/material/Drawer';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
@@ -20,7 +20,6 @@ import { Grid } from '@mui/material';
 import axios from 'axios';
 import url from '../Components/url';
 import AccountCircle from '@mui/icons-material/AccountCircle';
-import { Avatar } from '@mui/material'
 import { Dropdown, Menu, Modal, Form, Input, Button } from 'antd'
 import RoutesManage from '../Components/Routes/RoutesManage';
 import AltRouteIcon from '@mui/icons-material/AltRoute';
@@ -66,7 +65,6 @@ const useStyles = makeStyles({
     backgroundColor: '#36f195',
     height: '50px',
     fontSize: '15px',
-    fontFamily: 'Roboto Slab',
     border: 'transparent',
     borderRadius: '5px',
     fontFamily: 'Tiro Gurmukhi, serif',
@@ -195,12 +193,7 @@ function ResponsiveDrawer(props) {
   const handleListItemClick = (event, index) => {
     setSelectedIndex(index);
   };
-  const theme = useTheme();
-
   const [open, setOpen] = React.useState(true);
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
   let navigate = useNavigate();
   // Pages
   const [show, setShow] = React.useState(true);
@@ -469,11 +462,6 @@ function ResponsiveDrawer(props) {
   const container = window !== undefined ? () => window().document.body : undefined;
   // App bar 
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-
-  const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
-  };
   return (
     <Box sx={{ display: 'flex' }}>
 

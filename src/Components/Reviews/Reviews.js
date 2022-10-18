@@ -250,60 +250,60 @@ function Reviews() {
     });
 
     const columns = [
-        {
-            title: 'Image',
-            width: '20%',
-            key: 'location_id',
-            render: (_, record) => (
-                <Space size="middle">
-                    <Image
-                        width={100}
-                        src={record.location_id.images[0].image_url}
-                    />
-                    {/* {record.images.image_url} */}
-                </Space>
-            ),
-        },
-        {
-            title: 'Title',
-            width: '20%',
-            key: 'title',
-            render: (_, record) => (
-                <Space size="middle">
-                    {record.location_id.title}
-                </Space>
-            ),
-        },
-        {
-            title: 'Location Address',
-            width: '20%',
-            key: 'location',
-            render: (_, record) => (
-                <Space size="middle">
-                    {record.location_id.location.coordinates}
-                </Space>
-            ),
-        },
-        {
-            title: 'Distance',
-            width: '20%',
-            key: 'distance',
-            render: (_, record) => (
-                <Space size="middle">
-                    {record.location_id.distance}
-                </Space>
-            ),
-        },
-        {
-            title: 'Avg Time',
-            width: '20%',
-            key: 'avg_time',
-            render: (_, record) => (
-                <Space size="middle">
-                    {record.location_id.avg_time}
-                </Space>
-            ),
-        },
+        // {
+        //     title: 'Image',
+        //     width: '20%',
+        //     key: 'location_id',
+        //     render: (_, record) => (
+        //         <Space size="middle">
+        //             <Image
+        //                 width={100}
+        //                 src={record.location_id.images[0].image_url}
+        //             />
+        //             {/* {record.images.image_url} */}
+        //         </Space>
+        //     ),
+        // },
+        // {
+        //     title: 'Title',
+        //     width: '20%',
+        //     key: 'title',
+        //     render: (_, record) => (
+        //         <Space size="middle">
+        //             {record.location_id.title}
+        //         </Space>
+        //     ),
+        // },
+        // {
+        //     title: 'Location Address',
+        //     width: '20%',
+        //     key: 'location',
+        //     render: (_, record) => (
+        //         <Space size="middle">
+        //             {record.location_id.location.coordinates}
+        //         </Space>
+        //     ),
+        // },
+        // {
+        //     title: 'Distance',
+        //     width: '20%',
+        //     key: 'distance',
+        //     render: (_, record) => (
+        //         <Space size="middle">
+        //             {record.location_id.distance}
+        //         </Space>
+        //     ),
+        // },
+        // {
+        //     title: 'Avg Time',
+        //     width: '20%',
+        //     key: 'avg_time',
+        //     render: (_, record) => (
+        //         <Space size="middle">
+        //             {record.location_id.avg_time}
+        //         </Space>
+        //     ),
+        // },
         {
             title: 'UserName',
             width: '20%',
