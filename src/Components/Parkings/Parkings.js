@@ -4,8 +4,6 @@ import HomeIcon from '@mui/icons-material/Home';
 import { SearchOutlined, DeleteTwoTone, ExclamationCircleOutlined, EditTwoTone, PlusOutlined } from '@ant-design/icons';
 import { Button, Input, Space, Table, Form, Select, Upload, Image }
     from 'antd';
-import PetsIcon from '@mui/icons-material/Pets';
-
 import React, { useRef, useState, useEffect } from 'react';
 import Highlighter from 'react-highlight-words';
 import Grid from '@material-ui/core/Grid';

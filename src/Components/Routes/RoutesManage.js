@@ -4,15 +4,12 @@ import HomeIcon from '@mui/icons-material/Home';
 import { SearchOutlined, DeleteTwoTone, ExclamationCircleOutlined, EditTwoTone, PlusOutlined } from '@ant-design/icons';
 import { Button, Input, Space, Table, Form, Select, Upload, Image }
     from 'antd';
-import PetsIcon from '@mui/icons-material/Pets';
-
 import React, { useRef, useState, useEffect } from 'react';
 import Highlighter from 'react-highlight-words';
 import Grid from '@material-ui/core/Grid';
 import { Typography } from '@mui/material';
 import { Modal } from 'antd';
 import axios from "axios";
-import RouteIcon from '@mui/icons-material/Route';
 import AltRouteIcon from '@mui/icons-material/AltRoute';
 
 import Box from '@mui/material/Box';
@@ -239,19 +236,23 @@ function RoutesManage() {
     });
 
     const columns = [
-        // {
-        //     title: 'Image',
-        //     width: '20%',
-        //     key: 'title',
-        //     render: (_, record) => (
-        //         <Space size="middle">
-        //             <Image
-        //                 width={100}
-        //                 src={record.images[0].image_url}
-        //             />
-        //         </Space>
-        //     ),
-        // },
+        {
+            title: 'Image',
+            width: '20%',
+            key: 'title',
+            render: (_, record) => (
+                <Space size="middle">
+                    {record.images.length===0?
+                    <span>Null</span>:
+                     <Image
+                        width={100}
+                        src={record.images[0].image_url}
+                    />
+                    }
+                   
+                </Space>
+            ),
+        },
         {
             title: 'Title',
             width: '20%',
