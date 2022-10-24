@@ -2,7 +2,7 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import HomeIcon from '@mui/icons-material/Home';
 import { SearchOutlined, DeleteTwoTone, ExclamationCircleOutlined, EditTwoTone, PlusOutlined } from '@ant-design/icons';
-import { Button, Input, Space, Table, Form, Select, Upload, Badge }
+import { Button, Input, Space, Table, Form, Select, Upload, Badge ,Image}
     from 'antd';
 import PetsIcon from '@mui/icons-material/Pets';
 
@@ -237,7 +237,23 @@ function RoutesTable() {
     });
 
     const columns = [
-       
+        {
+            title: 'Image',
+            width: '20%',
+            key: 'title',
+            render: (_, record) => (
+                <Space size="middle">
+                    {record.images.length === 0 ?
+                        <span>Null</span> :
+                        <Image
+                            width={100}
+                            src={record.images[0].image_url}
+                        />
+                    }
+
+                </Space>
+            ),
+        },
         {
             title: 'Title',
             width: '20%',

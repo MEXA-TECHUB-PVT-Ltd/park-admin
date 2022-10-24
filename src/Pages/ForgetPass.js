@@ -26,22 +26,22 @@ const ContainerStyle = {
   // paddingTop: '50px',
   backgroundColor: 'white',
   color: 'black',
-  height: '110vh',
+  height: '120vh',
   // backgroundImage: 'linear-gradient(to right, #1A513B , #657e58)',
   backgroundImage: `url(${background})`,
   backgroundSize: 'cover',
   backgroundRepeat: 'no-repeat',
-  backgroundSize: '100% 800px'
+  backgroundSize: '100% 100%'
 }
 const ContainerStyle3 = {
   paddingTop: '150px',
   justifyContent: 'center',
   color: '#1A513B',
-  height: '110vh',
+  height: '120vh',
   backgroundImage: `url(${background})`,
   backgroundSize: 'cover',
   backgroundRepeat: 'no-repeat',
-  backgroundSize: '100% 800px'
+  backgroundSize: '100% 100%'
 }
 
 const headingStyle = {
@@ -90,68 +90,77 @@ function ForgetPass() {
     'Content-Type': 'application/json'
   }
   const EmailVerify = () => {
-    axios.post(`${url}api/forgetPassword/userForgetPassword`, {
-      email: email,
-    }, { headers }).then(response => {
-      console.log(response.data)
-      if (response.data.statusCode ===200) {
-        message.success(response.data.message);
-        setdisabledOtp(false)
-        setOtpMatch(response.data.data.otp)
-      } else {
-        Modal.error({
-          title: 'Non Registered Email',
-          content: 'Please Check your Email',
-        });
-      }
-    })
-      .catch(err => {
-        console.log(err)
-        Modal.error({
-          title: 'Non Registered Email',
-          content: 'Please Check your Email',
-        });
-      })
-  }
-  const FinishData = () => {
-    setLoading1(true)
-    setTimeout(() => {
-      setLoading1(false)
-      axios.post(`${url}api/forgetPassword/verifyOTP`, {
-        userEnteredOtp: password,
-        email: email
+    if(email===''){
+      Modal.error({
+        title: 'Empty Fields',
+        content: 'Please Enter Email to continue',
+      });
+    }else{
+      axios.post(`${url}api/forgetPassword/userForgetPassword`, {
+        email: email,
       }, { headers }).then(response => {
-        console.log(response)
-        if (response.data.message === "user found , OTP successfully matched") {
-          console.log('matched')
-          const Id = response.data.data.userId;
-          const EmailData = response.data.data.email;
-          console.log(EmailData);
-          navigate('/updatePass'
-            ,
-            {
-              state: {
-                ID: Id,
-                email: EmailData,
-              }
-            }
-          );
+        console.log(response.data)
+        if (response.data.statusCode ===200) {
+          message.success(response.data.message);
+          setdisabledOtp(false)
+          setOtpMatch(response.data.data.otp)
         } else {
-          console.log("not matched")
           Modal.error({
-            title: 'Invalid OTP',
-            content: 'Check OTP to continue',
+            title: 'Non Registered Email',
+            content: 'Please Check your Email',
           });
         }
       })
         .catch(err => {
           console.log(err)
           Modal.error({
-            title: 'Invalid OTP',
-            content: 'Check OTP to continue',
+            title: 'Non Registered Email',
+            content: 'Please Check your Email',
           });
         })
-    }, 3000)
+    }
+   
+  }
+  const FinishData = () => {
+      setLoading1(true)
+      setTimeout(() => {
+        setLoading1(false)
+        axios.post(`${url}api/forgetPassword/verifyOTP`, {
+          userEnteredOtp: password,
+          email: email
+        }, { headers }).then(response => {
+          console.log(response)
+          if (response.data.message === "user found , OTP successfully matched") {
+            console.log('matched')
+            const Id = response.data.data.userId;
+            const EmailData = response.data.data.email;
+            console.log(EmailData);
+            navigate('/updatePass'
+              ,
+              {
+                state: {
+                  ID: Id,
+                  email: EmailData,
+                }
+              }
+            );
+          } else {
+            console.log("not matched")
+            Modal.error({
+              title: 'Invalid OTP',
+              content: 'Check OTP to continue',
+            });
+          }
+        })
+          .catch(err => {
+            console.log(err)
+            Modal.error({
+              title: 'Invalid OTP',
+              content: 'Check OTP to continue',
+            });
+          })
+      }, 3000)
+  
   };
   return (
     <div >

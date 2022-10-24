@@ -1,8 +1,8 @@
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import HomeIcon from '@mui/icons-material/Home';
-import { SearchOutlined, DeleteTwoTone, ExclamationCircleOutlined, EditTwoTone, PlusOutlined } from '@ant-design/icons';
-import { Button, Input, Space, Table, Form, Select, Upload, Image }
+import { SearchOutlined, DeleteTwoTone, ExclamationCircleOutlined, EditTwoTone } from '@ant-design/icons';
+import { Button, Input, Space, Table, Form, Image }
     from 'antd';
 import React, { useRef, useState, useEffect } from 'react';
 import Highlighter from 'react-highlight-words';
@@ -11,21 +11,20 @@ import { Typography } from '@mui/material';
 import { Modal } from 'antd';
 import axios from "axios";
 import RouteIcon from '@mui/icons-material/Route';
-
 import Box from '@mui/material/Box';
 import '../tableStyle.css'
 import url from '../url'
 import googleMapsApiKey from '../mapKey'
-import ClipLoader from "react-spinners/ClipLoader";
 import PropTypes from 'prop-types';
 import {
     GoogleMap,
     useLoadScript,
     Marker,
 } from "@react-google-maps/api";
-const { Option } = Select;
 
 const libraries = ["places"];
+const { TextArea } = Input;
+
 const mapContainerStyle = {
     height: "300px",
     width: "470px",
@@ -35,8 +34,8 @@ const options = {
     zoomControl: true,
 };
 const center = {
-    lat: 43.6532,
-    lng: -79.3832,
+    lat: 56.002716,
+    lng: -4.580081,
 };
 
 const { confirm } = Modal;
@@ -55,10 +54,7 @@ const addbtn = {
     backgroundColor: '#1A513B',
     color: 'white',
 }
-const override = {
-    display: ' block',
-    margin: '0 auto',
-}
+
 
 function Item(props) {
     const { sx, ...other } = props;
@@ -91,18 +87,141 @@ Item.propTypes = {
     ]),
 };
 function Parking() {
+    const [loadings, setLoadings] = useState([]);
+    const enterLoading = (index) => {
+        setLoadings((prevLoadings) => {
+            const newLoadings = [...prevLoadings];
+            newLoadings[index] = true;
+            return newLoadings;
+        });
+        setTimeout(() => {
+            setLoadings((prevLoadings) => {
+                const newLoadings = [...prevLoadings];
+                newLoadings[index] = false;
+                var letters = /^[a-zA-Z]+$/;
+                if (nameLocation === '' || description === '' || distance === '' || avg_time === '') {
+                    Modal.error({
+                        content: 'Please Fill All Fields to continue',
+                    });
+                } else if (images.length === 0) {
+                    Modal.error({
+                        content: 'Please Select an Image',
+                    });
+                } else {
+                    console.log(images)
+                    const coordinates = {
+                        "coordinates": [markers.lat, markers.lng]
+                    }
+                    let formData = new FormData();
+                    console.log("coordinates");
+                    console.log(coordinates);
+                    for (let i = 0; i < images.length; i++) {
+                        formData.append('images', images[i])
+                    }
+                    formData.append('type', 'parking');
+                    formData.append('location', JSON.stringify(coordinates));
+                    formData.append('title', nameLocation);
+                    formData.append('description', description);
+                    formData.append('distance', distance);
+                    formData.append('avg_time', avg_time);
+                    // console.log(formData)
+                    var config = {
+                        method: 'post',
+                        url: url + 'api/location/createLocation',
+                        headers: {
+                            'Content-Type': `multipart/form-data`,
+                        },
+                        data: formData
+                    };
+                    axios(config)
+                        .then(function (response) {
+                            console.log(response.data);
+                            setVisibleAdd(false);
+                            getAllData();
+                            Modal.success({
+                                content: 'Added Parking Route Successfully',
+                            });
+                            setnameLocation('');
+                            setdescription('');
+                            setDistance('');
+                            setImages([]);
+                            setavg_time('');
+
+                        })
+                }
+                return newLoadings;
+            });
+        }, 3000);
+    }
+    // Update 
+    const [loadings1, setLoadings1] = useState([]);
+    const enterLoading1 = (index) => {
+        setLoadings1((prevLoadings) => {
+            const newLoadings1 = [...prevLoadings];
+            newLoadings1[index] = true;
+            return newLoadings1;
+        });
+        setTimeout(() => {
+            setLoadings1((prevLoadings) => {
+                const newLoadings1 = [...prevLoadings];
+                newLoadings1[index] = false;
+                if (nameLocationEdit === '' || descriptionEdit === '' || distanceEdit === '' || avg_timeEdit === '') {
+                    Modal.error({
+                        content: 'Please Fill All Fields to continue',
+                    });
+                } else {
+                    console.log(imagesEdit)
+                    console.log(editId)
+                    let formData = new FormData();
+                    for (let i = 0; i < imagesEdit.length; i++) {
+                        formData.append('images', imagesEdit[i])
+                    }
+                    //   formData.append(`images`, imagesEdit[0])
+                    formData.append('type', 'parking');
+                    formData.append('lat', markers.lat);
+                    formData.append('long', markers.lng);
+                    formData.append('location_id', editId);
+                    formData.append('title', nameLocationEdit);
+                    formData.append('description', descriptionEdit);
+                    formData.append('distance', distanceEdit);
+                    formData.append('avg_time', avg_timeEdit);
+                    var config = {
+                        method: 'put',
+                        url: url + 'api/location/updateLocation',
+                        headers: {
+                            'Content-Type': `multipart/form-data`,
+                        },
+                        data: formData
+                    };
+                    axios(config)
+                        .then(function (response) {
+                            console.log(response.data)
+                            getAllData();
+                            setVisibleView(false);
+                            setConfirmLoadingAdd(false);
+                            Modal.success({
+                                content: 'Updated Parking Route Successfully',
+                            });
+                            // setImagesEdit([])
+                            setnameLocationEdit('');
+                            setdescriptionEdit('');
+                            setDistanceEdit('');
+                            setavg_time('')
+                        })
+                }
+                return newLoadings1;
+            });
+        }, 3000);
+    }
     //Get API Axios
-    const [loading1, setLoading1] = useState(false);
 
     const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(false);
     const getAllData = () => {
         axios.get(`${url}api/location/getLocationByTypeWithOnePic/?type=parking`)
             .then((response) => {
                 const allData = response.data;
                 console.log(allData);
                 setData(response.data.result);
-                setLoading(true)
             })
             .catch(error => console.error(`Error:${error}`));
 
@@ -111,22 +230,12 @@ function Parking() {
         getAllData();
         setMarkers(
             {
-                lat: 43.6532,
-                lng: -79.3832,
+                lat: 56.002716,
+                lng: -4.580081,
             }
         )
 
     }, []);
-    const [LocationIdType, setLocationIdType] = React.useState('');
-    const [LocationIdTypeEdit, setLocationIdTypeEdit] = React.useState('');
-
-
-    const handleChange = (event) => {
-        // setLocationIdType(event.target.value);
-        setLocationIdType(event);
-
-    };
-
     // Add 
     function handleClick(event) {
         event.preventDefault();
@@ -189,19 +298,6 @@ function Parking() {
                     >
                         Reset
                     </Button>
-                    <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            confirm({
-                                closeDropdown: false,
-                            });
-                            setSearchText(selectedKeys[0]);
-                            setSearchedColumn(dataIndex);
-                        }}
-                    >
-                        Filter
-                    </Button>
                 </Space>
             </div>
         ),
@@ -236,28 +332,29 @@ function Parking() {
     });
 
     const columns = [
-        // {
-        //     title: 'Image',
-        //     width: '20%',
-        //     key: 'title',
-        //     render: (_, record) => (
-        //         <Space size="middle">
-        //             <Image
-        //                 width={100}
-        //                 src={record.images[0].image_url}
-        //             />
-        //         </Space>
-        //     ),
-        // },
         {
-            title: 'Title',
+            title: 'Image',
             width: '20%',
             key: 'title',
             render: (_, record) => (
                 <Space size="middle">
-                    {record.title}
+                    {record.images.length === 0 ?
+                        <span>Null</span> :
+                        <Image
+                            width={100}
+                            src={record.images[0].image_url}
+                        />
+                    }
+
                 </Space>
             ),
+        },
+        {
+            title: 'Title',
+            width: '20%',
+            dataIndex: 'title',
+            key: 'title',
+            ...getColumnSearchProps('title'),
         },
         {
             title: 'Location Address',
@@ -408,86 +505,10 @@ function Parking() {
     const showModalAdd = () => {
         setVisibleAdd(true);
     };
-
-    const handleOkAdd = () => {
-        console.log(images)
-        const coordinates = {
-            "coordinates": [markers.lat, markers.lng]
-        }
-        let formData = new FormData();
-        console.log("coordinates");
-        console.log(coordinates);
-        for (let i = 0; i < images.length; i++) {
-            formData.append('images', images[i])
-        }
-        formData.append('type', 'parking');
-        formData.append('location', JSON.stringify(coordinates));
-        formData.append('title', nameLocation);
-        formData.append('description', description);
-        formData.append('distance', distance);
-        formData.append('avg_time', avg_time);
-        console.log(formData)
-        var config = {
-            method: 'post',
-            url: url + 'api/location/createLocation',
-            headers: {
-                'Content-Type': `multipart/form-data`,
-            },
-            data: formData
-        };
-        axios(config)
-            .then(function (response) {
-                console.log(response.data);
-                setVisibleAdd(false);
-                getAllData();
-                Modal.success({
-                    content: 'Added Parking Route Successfully',
-                });
-            })
-    };
-    const handleOkUpdate = () => {
-        console.log(imagesEdit)
-        console.log(editId)
-        let formData = new FormData();
-        for (let i = 0; i < imagesEdit.length; i++) {
-            formData.append('images', imagesEdit[i])
-        }
-        //   formData.append(`images`, imagesEdit[0])
-        formData.append('type', 'parking');
-        formData.append('lat', markers.lat);
-        formData.append('long', markers.lng);
-        formData.append('location_id', editId);
-        formData.append('title', nameLocationEdit);
-        formData.append('description', descriptionEdit);
-        formData.append('distance', distanceEdit);
-        formData.append('avg_time', avg_timeEdit);
-        var config = {
-            method: 'put',
-            url: url + 'api/location/updateLocation',
-            headers: {
-                'Content-Type': `multipart/form-data`,
-            },
-            data: formData
-        };
-        axios(config)
-            .then(function (response) {
-                console.log(response.data)
-                getAllData();
-                setVisibleView(false);
-                setConfirmLoadingAdd(false);
-                Modal.success({
-                    content: 'Updated Parking Route Successfully',
-                });
-                setImagesEdit([])
-            })
-    };
-
     const handleCancelAdd = () => {
         console.log('Clicked cancel button');
         setVisibleAdd(false);
     };
-
-
     // Google Map 
     const { isLoaded, loadError } = useLoadScript({
         googleMapsApiKey: googleMapsApiKey,
@@ -501,10 +522,7 @@ function Parking() {
 
     if (loadError) return "Error";
     if (!isLoaded) return "Loading...";
-    const FileUploadImages = (e) => {
-        console.log(e)
-        setImagesEdit(e.fileList)
-    }
+
     const handleImage = (e) => {
         console.log("e.target.files")
         setImages(e.target.files)
@@ -532,8 +550,8 @@ function Parking() {
                         sx={{ display: 'flex', alignItems: 'center' }}
                         color="text.primary"
                     >
-                        <RouteIcon sx={{ mr: 0.5 }} fontSize="inherit" />
-                        Parking
+                        <RouteIcon  sx={{ mr: 0.5 }} fontSize="inherit" />
+                        Parking Route
                     </Link>
                 </Breadcrumbs>
             </div>
@@ -545,7 +563,7 @@ function Parking() {
                             sx={{ display: 'flex', p: 1, bgcolor: 'transparent', borderRadius: 1 }}
                         >
                             <Item sx={{ flexGrow: 2 }}>
-                                <Typography variant='h6' style={{ fontWeight: 700 }} >Parking Routes</Typography>
+                                <Typography variant='h6' style={{ fontWeight: 700 }} >Parking Route</Typography>
                             </Item>
                             <Item>
                                 <Button variant="contained" style={addbtn}
@@ -590,6 +608,7 @@ function Parking() {
                                                 center={center}
                                                 options={options}
                                                 onClick={(e) => {
+                                                    console.log(e.latLng.lat())
                                                     setMarkers(
                                                         {
                                                             lat: e.latLng.lat(),
@@ -600,17 +619,15 @@ function Parking() {
                                                 }}
                                                 onLoad={onMapLoad}
                                             >
-                                                <Marker key="added" position={{ lat: markers.lat, lng: markers.lng }}
-
-                                                />
-
+                                                <Marker key="added" position={{ lat: markers.lat, lng: markers.lng }} />
                                             </GoogleMap>
                                         </div>
                                         <h5 style={{ margin: '20px' }}>Click on map to edit location</h5>
                                         <Form.Item label="Description ">
-                                            <Input value={description} placeholder="Enter Description"
+
+                                            <TextArea value={description}
                                                 onChange={(e) => setdescription(e.target.value)
-                                                } />
+                                                } rows={4} placeholder="Enter Description" />
                                         </Form.Item>
                                         <Form.Item label="Distance ">
                                             <Input value={distance} placeholder="Enter Distance"
@@ -629,21 +646,17 @@ function Parking() {
                                                 span: 16,
                                             }}
                                         >
-                                            <Button type="primary" htmlType="submit" onClick={handleOkAdd} style={{ backgroundColor: '#1A513B', border: 'none' }}>
-                                                {loading1 ? <ClipLoader color='white' loading={loading1} css={override} size={10} /> : <h5 style={{ color: 'white' }}>
-                                                    Save</h5>}
+                                            <Button type="primary" loading={loadings[0]} onClick={() => enterLoading(0)} style={{ backgroundColor: '#1A513B', border: 'none' }}>
+                                                Save
                                             </Button>
-
                                         </Form.Item>
-
                                     </Form>
-
                                 </Modal>
-
                             </Item>
                         </Box>
 
                     </Grid>
+
                     <Grid item xs={12} md={12}>
                         <div className='tableResponsive'>
                             <Table columns={columns} dataSource={data} />
@@ -665,24 +678,16 @@ function Parking() {
                                 }}
                                 layout="horizontal"
                             >
-                                {display?
-                                imagesEdit.map((row) => (
-                                    <>
-                                        <Image
-                                            width={100}
-                                            src={row.image_url}
-                                        />
-                                    </>
-                                ))
-                                :null}
-                                {/* {imagesEdit.map((row) => (
-                                    <>
-                                        <Image
-                                            width={100}
-                                            src={row.image_url}
-                                        />
-                                    </>
-                                ))} */}
+                                {display ?
+                                    imagesEdit.map((row) => (
+                                        <>
+                                            <Image
+                                                width={100}
+                                                src={row.image_url}
+                                            />
+                                        </>
+                                    ))
+                                    : null}
 
                                 <Form.Item label="Select" >
                                     <input type="file" multiple name="image" placeholder="image"
@@ -714,16 +719,14 @@ function Parking() {
                                         }}
                                         onLoad={onMapLoad}
                                     >
-                                        <Marker key="added" position={markers}
-
-                                        />
+                                        <Marker key="added" position={markers} />
                                     </GoogleMap>
                                 </div>
                                 <h5 style={{ margin: '20px' }}>Click on map to edit location</h5>
                                 <Form.Item label="Description ">
-                                    <Input value={descriptionEdit} placeholder="Enter Description"
+                                    <TextArea value={descriptionEdit}
                                         onChange={(e) => setdescriptionEdit(e.target.value)
-                                        } />
+                                        } rows={4} placeholder="Enter Description" />
                                 </Form.Item>
                                 <Form.Item label="Distance ">
                                     <Input value={distanceEdit} placeholder="Enter Distance"
@@ -742,7 +745,7 @@ function Parking() {
                                         span: 16,
                                     }}
                                 >
-                                    <Button type="primary" htmlType="submit" onClick={handleOkUpdate} style={{ backgroundColor: '#1A513B', border: 'none' }}>
+                                    <Button type="primary" loading={loadings1[0]} onClick={() => enterLoading1(0)} style={{ backgroundColor: '#1A513B', border: 'none' }}>
                                         Update
                                     </Button>
                                 </Form.Item>

@@ -174,7 +174,7 @@ function ResponsiveDrawer(props) {
         console.log('get profile state')
         console.log(allData);
         setemail(allData.foundResult[0].email)
-        setpassword(allData.foundResult[0].password)
+        // setpassword(allData.foundResult[0].password)
 
       })
       .catch(error => console.error(`Error:${error}`));
@@ -230,33 +230,42 @@ function ResponsiveDrawer(props) {
   };
 
   const handleOkAccount = () => {
+    if (password=='') {
+      Modal.error({
+        content: 'Please Fill All Fields to continue',
+      });
+    } else {
+
     setConfirmLoadingAccount(true);
     setTimeout(() => {
-      // Account Update 
-      axios.put(`${url}api/admin/updateAdminPassword/`, {
-        email: email,
-        newPassword: password,
-        adminId: props.Iduser
-      }, { headers }).then(response => {
-        console.log(response.data);
-        console.log('Updated Account Successfully');
-        setVisibleAccount(false);
-        setConfirmLoadingAccount(false);
-        Modal.success({
-          content: 'Password Updated Successfully',
-        });
-
-      })
-        .catch(err => {
-          console.log(err)
-          Modal.error({
-            title: 'Error ',
-            content: 'Password Update Failed',
+   
+        // Account Update 
+        axios.put(`${url}api/admin/updateAdminPassword/`, {
+          email: email,
+          newPassword: password,
+          adminId: props.Iduser
+        }, { headers }).then(response => {
+          console.log(response.data);
+          console.log('Updated Account Successfully');
+          setVisibleAccount(false);
+          setConfirmLoadingAccount(false);
+          Modal.success({
+            content: 'Password Updated Successfully',
           });
+
         })
+          .catch(err => {
+            console.log(err)
+            Modal.error({
+              title: 'Error ',
+              content: 'Password Update Failed',
+            });
+          })
 
 
     }, 2000);
+  }
+
   };
 
   const handleCancelAccount = () => {
@@ -264,15 +273,8 @@ function ResponsiveDrawer(props) {
     setVisibleAccount(false);
   };
   // Menu 
-  const [visible, setVisible] = useState(false);
-  const [confirmLoading, setConfirmLoading] = useState(false);
-  const handleCancel = () => {
-    console.log('Clicked cancel button');
-    setVisible(false);
-  };
-  // Menu 
   const menu = (
-    <Menu
+    <Menu style={{ marginTop: '10px' }}
       items={[
         {
           key: '1',
@@ -296,11 +298,8 @@ function ResponsiveDrawer(props) {
   );
 
   // submit add 
-  const [email, setemail] = useState([]);
-  const [password, setpassword] = useState([]);
-  const [username, setusername] = useState([]);
-  const [ImgUserData, setImgUserData] = useState([]);
-  const [dobUser, setdobUser] = useState([]);
+  const [email, setemail] = useState('');
+  const [password, setpassword] = useState('');
   const drawer = (
     <div style={{ overflow: 'hidden' }}>
       <DrawerHeader className={classes.head}>
@@ -466,7 +465,9 @@ function ResponsiveDrawer(props) {
     <Box sx={{ display: 'flex' }}>
 
       <AppBar position="fixed" sx={{ flexGrow: 1 }}>
-        <Toolbar className={classes.BackGround}>
+        <Toolbar
+        // className={classes.BackGround}
+        >
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -517,7 +518,7 @@ function ResponsiveDrawer(props) {
                 <Input value={email} disabled />
               </Form.Item>
               <Form.Item label="Password">
-                <Input onChange={
+                <Input value={password} onChange={
                   (e) => setpassword(e.target.value)
                 } />
               </Form.Item>
