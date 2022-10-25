@@ -253,7 +253,7 @@ function GridDashboard() {
 
                                                 </Grid>
                                                 <Grid item xs={12} md={12} >
-                                                    <div className={classes.remarksHeader}>Total Dog Walks</div>
+                                                    <div className={classes.remarksHeader}>Dog Walks</div>
                                                 </Grid>
                                             </Grid>
                                         </Grid>

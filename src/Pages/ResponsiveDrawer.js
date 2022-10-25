@@ -39,8 +39,8 @@ import Parkings from '../Components/Parkings/Parkings';
 const drawerWidth = 240;
 const useStyles = makeStyles({
   BackGround: {
-    backgroundColor: 'white',
-    color: 'black',
+    backgroundColor: '#112337',
+    color: 'white',
     paddingLeft: '65px',
   }, iconColor: {
     color: '#455a64'
@@ -466,7 +466,7 @@ function ResponsiveDrawer(props) {
 
       <AppBar position="fixed" sx={{ flexGrow: 1 }}>
         <Toolbar
-        // className={classes.BackGround}
+        className={classes.BackGround}
         >
           <IconButton
             color="inherit"

@@ -98,7 +98,6 @@ function RoutesManage() {
             setLoadings((prevLoadings) => {
                 const newLoadings = [...prevLoadings];
                 newLoadings[index] = false;
-                var letters = /^[a-zA-Z]+$/;
                 if (nameLocation === '' || description === '' || distance === '' || avg_time === '') {
                     Modal.error({
                         content: 'Please Fill All Fields to continue',
