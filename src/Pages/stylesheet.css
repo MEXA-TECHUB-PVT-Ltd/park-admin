@@ -1,0 +1,93 @@
+.login-form {
+    max-width: 100%;
+    padding: 40px;
+  }
+  .login-form-forgot {
+    float: right;
+  }
+  .ant-col-rtl .login-form-forgot {
+    float: left;
+  }
+  .login-form-button {
+    width: 100%;
+    color:white;
+    font-weight: 600;
+    font-size: 16px;
+    background-color: #1A513B;
+    border-radius: 40px;
+    height:50px;
+    border:none
+
+  }
+  .email-Verify{
+    font-size: 30px;
+    margin-top: 10px;
+    color: #1A513B;
+    cursor: pointer;
+  }
+  .login-forget-password{
+    color:#1890ff;
+    cursor:pointer;
+    text-align: right;
+    margin-top: -15px;
+
+  }
+  .login-forget-password:hover{
+    color:blue;
+
+  }
+  .login-form-button:hover{
+    background-color: #dfdbce;
+
+  }
+  .login-form-button:focus{
+    background-color: #1A513B;
+
+  }
+  .inputField{
+    height:50px;
+    border-radius: 40px;
+  }
+
+  .site-form-item-icon{
+    color: #1A513B;
+  }
+  .marginPadding{
+    margin-top: 10px;
+  }
+  .curve{
+    height: 300px;
+    background-color: #1A513B;
+    border-radius: 0px 0px 50% 50%;
+  
+  }
+  .ImageStyle{
+    margin-left: 630px;
+    margin-top: 30px;
+    width: 200px;
+    height:200px
+  }
+  .divheight{
+    width: 100%;
+    min-height:110vh;
+
+  }
+  .headingStyle{
+    margin-left: 630px;
+    margin-top: 30px;
+    color:black;
+    
+  }
+  /* .curve1{
+    margin-left:100px;
+    margin-top:30px
+  } */
+
+  #components-layout-demo-fixed-sider .logo {
+    height: 32px;
+    margin: 16px;
+    background: rgba(255, 255, 255, 0.2);
+  }
+  .site-layout .site-layout-background {
+    background: #fff;
+  }
